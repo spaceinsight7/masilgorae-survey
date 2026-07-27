@@ -258,6 +258,24 @@
     font-size:.95rem; background:#FBEDEA; border:1.5px solid #D08A78; color:#8A3A24;
     border-radius:12px; padding:.85rem .9rem; margin:.9rem 0; line-height:1.5;
   }
+  .bigmark{
+    width:5rem; height:5rem; border-radius:50%; display:grid; place-items:center;
+    margin:2.6rem auto 1.3rem; font-size:2.4rem; color:#fff;
+  }
+  .bigmark.ok{background:var(--sea);}
+  .bigmark.bad{background:#C25B3E;}
+  .spin{
+    width:3.6rem; height:3.6rem; margin:2.8rem auto 1.4rem; display:block;
+    border:5px solid #CBDDE1; border-top-color:var(--sea); border-radius:50%;
+    animation:sp 1s linear infinite;
+  }
+  @keyframes sp{to{transform:rotate(360deg);}}
+  .endtitle{font-size:1.55rem; font-weight:800; text-align:center; letter-spacing:-.025em; margin:0 0 .6rem;}
+  .endsub{font-size:1.05rem; color:var(--ink-soft); text-align:center; margin:0 0 1.4rem; line-height:1.6;}
+  .closebox{
+    background:var(--sea-pale); border:2px solid var(--sea); border-radius:14px;
+    padding:1rem; text-align:center; font-size:1.08rem; font-weight:700; color:var(--sea-deep);
+  }
   .sendbox{
     width:100%; min-height:3.3rem; border-radius:12px; margin-top:1rem;
     display:flex; align-items:center; justify-content:center; text-align:center;
@@ -873,29 +891,48 @@ function cover(){
   document.getElementById('tog').onclick = cycleSize;
 }
 
+let SENT = false;      // 중복 저장 방지
+let PAYLOAD = null;
+
 function done(){
   $top.hidden = true; $nav.hidden = true;
-  const payload = collect();
-  $screen.innerHTML = `
-    <div class="done-mark">✓</div>
-    <h1 class="q" style="text-align:center;font-size:1.5rem">답변 감사합니다.</h1>
-    <p class="note" style="text-align:center">보내주신 의견은 마실고래를 고치는 데 쓰입니다.</p>
-    ${A.consent===1
-      ? '<div class="refuse" style="text-align:center">적어주신 번호로 <b>모바일 상품권</b>을 보내드립니다.</div>'
-      : ''}
-    <div id="status" class="sendbox">답변을 보내는 중…</div>
-    <button type="button" class="ghost" id="retry" hidden>다시 보내기</button>`;
-  document.getElementById('retry').onclick = ()=> send(payload);
-  send(payload);
+  if(!PAYLOAD) PAYLOAD = collect();
+  if(!SENT){ SENT = true; screenSaving(); send(PAYLOAD); }
 }
 
-function setStatus(kind, msg){
-  const s = document.getElementById('status');
-  const r = document.getElementById('retry');
-  if(!s) return;
-  s.className = 'sendbox ' + kind;
-  s.textContent = msg;
-  if(r) r.hidden = (kind !== 'bad');
+/* 1단계 — 저장 중 */
+function screenSaving(){
+  $screen.innerHTML = `
+    <span class="spin"></span>
+    <h1 class="endtitle">답변을 저장하고 있습니다</h1>
+    <p class="endsub">잠시만 기다려 주세요.<br>이 화면을 닫지 마시고 그대로 두시면 됩니다.</p>`;
+}
+
+/* 2단계 — 완료 */
+function screenDone(){
+  $screen.innerHTML = `
+    <div class="bigmark ok">✓</div>
+    <h1 class="endtitle">답변 감사합니다</h1>
+    <p class="endsub">보내주신 의견은 마실고래를 고치는 데 쓰입니다.</p>
+    ${A.consent===1
+      ? '<div class="refuse" style="text-align:center;font-size:1rem">적어주신 번호로 <b>모바일 상품권</b>을 보내드립니다.</div>'
+      : ''}
+    <div class="closebox">저장이 끝났습니다.<br>이제 화면을 닫으셔도 됩니다.</div>`;
+}
+
+/* 3단계 — 실패 */
+function screenFail(msg){
+  $screen.innerHTML = `
+    <div class="bigmark bad">!</div>
+    <h1 class="endtitle">저장하지 못했습니다</h1>
+    <p class="endsub">${msg}</p>
+    <button type="button" class="ghost" id="retry"
+      style="background:var(--sea);color:#fff;border-color:var(--sea);min-height:3.6rem;font-size:1.05rem">
+      다시 시도하기</button>`;
+  document.getElementById('retry').onclick = ()=>{
+    screenSaving();
+    send(PAYLOAD);
+  };
 }
 
 /* ---------- 응답 정리: 스프레드시트 한 줄로 평탄화 -------------------------- */
@@ -998,13 +1035,12 @@ const SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbx2tRiWqbiI1I0MCgLHK
 
 async function send(data){
   if(!SUBMIT_URL){
-    setStatus('warn','보낼 주소가 아직 설정되지 않았습니다. 아래에서 파일로 저장해 주세요.');
+    screenFail('보낼 주소가 설정되지 않았습니다. 조사 담당자에게 알려 주세요.');
     return;
   }
-  setStatus('', '보내는 중…');
   const body = JSON.stringify(data);
 
-  /* 1차: 정상 요청 — 성공 여부까지 확인할 수 있다 */
+  /* 1차: 정상 요청 — 저장 성공까지 확인할 수 있다 */
   try{
     const res = await fetch(SUBMIT_URL, {
       method:'POST', redirect:'follow',
@@ -1012,32 +1048,30 @@ async function send(data){
       body
     });
     const out = await res.json();
-    if(out && out.ok){ setStatus('ok','저장되었습니다.'); return; }
-    setStatus('bad','서버가 저장하지 못했습니다: ' + ((out&&out.error)||'알 수 없음'));
+    if(out && out.ok){ screenDone(); return; }
+    screenFail('서버가 저장하지 못했습니다.<br>다시 시도해 주세요.');
     return;
   }catch(e){ /* 응답을 읽지 못한 것뿐일 수 있으므로 아래로 진행 */ }
 
-  /* 2차: no-cors 전송 — 응답은 못 읽지만 전달은 확실하다.
-     같은 응답ID는 서버에서 중복 저장하지 않으므로 재시도해도 안전하다. */
+  /* 2차: no-cors — 응답은 못 읽지만 전달은 된다.
+     같은 응답ID는 서버가 중복 저장하지 않으므로 재시도해도 안전하다. */
   try{
     await fetch(SUBMIT_URL, {
       method:'POST', mode:'no-cors',
       headers:{'Content-Type':'text/plain;charset=utf-8'},
       body
     });
-    setStatus('warn','전송했습니다. 시트에 들어갔는지 담당자가 확인합니다.');
-    return;
+    screenDone(); return;
   }catch(e){}
 
   /* 3차: 마지막 수단 */
   try{
     if(navigator.sendBeacon(SUBMIT_URL, new Blob([body],{type:'text/plain;charset=utf-8'}))){
-      setStatus('warn','전송했습니다. 시트에 들어갔는지 담당자가 확인합니다.');
-      return;
+      screenDone(); return;
     }
   }catch(e){}
 
-  setStatus('bad','인터넷 연결이 불안정합니다. 다시 보내기를 눌러 주세요.');
+  screenFail('인터넷 연결이 불안정합니다.<br>연결을 확인하고 다시 시도해 주세요.');
 }
 
 /* ---------- 글자 크기 ------------------------------------------------------ */
@@ -1052,7 +1086,12 @@ function cycleSize(){
 document.getElementById('sizebtn').onclick = cycleSize;
 
 /* ---------- 이동 ----------------------------------------------------------- */
-document.getElementById('next').onclick = ()=>{ if(!document.getElementById('next').disabled){ idx++; render(); } };
+document.getElementById('next').onclick = ()=>{
+  const btn = document.getElementById('next');
+  if(btn.disabled) return;
+  btn.disabled = true;          // 연타로 두 번 저장되는 것을 막는다
+  idx++; render();
+};
 document.getElementById('prev').onclick = ()=>{ idx--; render(); };
 
 render();

@@ -228,6 +228,22 @@
     font-size:.72rem; line-height:1.5; padding:.8rem; border-radius:12px;
     border:1.5px solid var(--line); background:var(--paper); margin-top:.8rem;
   }
+  .legal{
+    background:var(--paper); border:1.5px solid var(--line); border-radius:var(--r);
+    padding:.2rem .9rem; margin-bottom:1rem;
+  }
+  .legal div{display:flex; gap:.7rem; padding:.7rem 0; border-bottom:1px solid var(--mist); font-size:.93rem; line-height:1.45;}
+  .legal div:last-child{border-bottom:0;}
+  .legal dt{flex:none; width:5.4rem; font-weight:700; color:var(--sea-deep);}
+  .legal dd{margin:0; color:var(--ink);}
+  .refuse{
+    font-size:.9rem; color:var(--ink-soft); background:#FDF4E3;
+    border:1.5px solid #E0B96A; border-radius:12px; padding:.75rem .85rem; margin-bottom:1rem;
+  }
+  .blocked{
+    font-size:.95rem; background:#FBEDEA; border:1.5px solid #D08A78; color:#8A3A24;
+    border-radius:12px; padding:.85rem .9rem; margin:.9rem 0; line-height:1.5;
+  }
   .sendbox{
     width:100%; min-height:3.3rem; border-radius:12px; margin-top:1rem;
     display:flex; align-items:center; justify-content:center; text-align:center;
@@ -266,6 +282,8 @@
    ========================================================================= */
 
 const A = {};            // 응답 저장소
+A.rid = 'R' + Date.now().toString(36).toUpperCase()
+            + Math.random().toString(36).slice(2,6).toUpperCase();
 let idx = -1;            // -1 = 표지
 
 /* SP 버전: 기준 차내시간 / 추가시간 단계 -------------------------------- */
@@ -276,7 +294,7 @@ const VER = {
   C: { base: 15, label: '15분쯤' },
   D: { base: 20, label: '20분 이상' }
 };
-const ver = () => VER[A.q22] || VER.B;
+const ver = () => VER[A.spver] || VER.B;
 
 const GU = ['중구','남구','동구','북구','울주군'];
 
@@ -409,7 +427,16 @@ const Q = [
  o:['부르고 기다리는 시간 줄이기','도착 시간 안내 정확하게','목적지까지 빨리 가기','함께 타고 돌아가는 방식 개선','앱으로 부르기 쉽게','차가 어디쯤 오는지 알려주기','타는 곳까지 가기 편하게','요금','차 안 깨끗하고 편하게','기사님 응대','몸이 불편한 분을 위한 시설','다니는 지역·시간 늘리기','기타'], etc:12},
 
 {id:'q33', sec:'바라는 점', t:'더 하고 싶은 말씀이 있으면 자유롭게 적어 주세요.',
- hint:'안 쓰셔도 괜찮습니다.', type:'text', optional:true}
+ hint:'안 쓰셔도 괜찮습니다.', type:'text', optional:true},
+
+/* Ⅷ. 경품 응모 — 개인정보 수집·이용 동의 */
+{id:'consent', sec:'경품 응모', type:'consent',
+ t:'설문에 참여해 주신 분께 추첨으로 모바일 상품권을 드립니다.'},
+
+{id:'prize', sec:'경품 응모', type:'prize',
+ t:'상품권을 보내드릴 곳을 알려 주세요.',
+ hint:'입력하신 정보는 상품권 발송에만 쓰고, 발송이 끝나면 바로 지웁니다.',
+ skipIf:()=>A.consent!==1}
 ];
 
 /* ---------- 유틸 --------------------------------------------------------- */
@@ -435,17 +462,24 @@ function ladderRows(kind){
 }
 
 /* ---------- 화면 그리기 --------------------------------------------------- */
-const screen = document.getElementById('screen');
-const nav = document.getElementById('nav');
-const top = document.getElementById('top');
+const $screen = document.getElementById('screen');
+const $nav = document.getElementById('nav');
+const $top = document.getElementById('top');
+
+/* 안전망: 어디서든 오류가 나면 빈 화면 대신 원인을 표시한다 */
+window.addEventListener('error', function(ev){
+  $screen.innerHTML = '<div class="hint" style="border-left-color:#D08A78;color:#8A3A24">'
+    + '화면을 그리는 중 문제가 생겼습니다.<br><b>' + (ev.message || '') + '</b><br>'
+    + (ev.lineno || '') + '행</div>';
+});
 
 function render(){
-  screen.scrollTop = 0;
+  $screen.scrollTop = 0;
   if(idx < 0) return cover();
   const list = active();
   if(idx >= list.length) return done();
 
-  top.hidden = false; nav.hidden = false;
+  $top.hidden = false; $nav.hidden = false;
   const q = list[idx];
   document.getElementById('count').innerHTML = `<b>${idx+1}</b> / ${list.length}`;
   document.getElementById('fill').style.width = ((idx)/list.length*100)+'%';
@@ -454,10 +488,10 @@ function render(){
   if(q.intro) h += `<p class="note">${q.intro}</p>`;
   h += `<h1 class="q">${q.t}</h1>`;
   if(q.hint) h += `<p class="hint">${q.hint}</p>`;
-  screen.innerHTML = h;
+  $screen.innerHTML = h;
 
   ({one:one, many:many, num:num, od:od, split:split, scale:scale, bat:bat,
-    ladder:ladder, text:freetext})[q.type](q);
+    ladder:ladder, text:freetext, consent:consent, prize:prize})[q.type](q);
 
   document.getElementById('prev').textContent = idx===0 ? '처음으로' : '이전';
   document.getElementById('next').textContent = idx===list.length-1 ? '다 했어요' : '다음';
@@ -478,7 +512,7 @@ function one(q){
     };
     box.appendChild(b);
   });
-  screen.appendChild(box);
+  $screen.appendChild(box);
   if(q.etc!==undefined && A[q.id]===q.etc) etcField(q);
 }
 
@@ -505,14 +539,14 @@ function many(q){
     };
     box.appendChild(b);
   });
-  screen.appendChild(box);
+  $screen.appendChild(box);
   if(q.etc!==undefined && cur.includes(q.etc)) etcField(q);
 }
 
 function etcField(q){
   const i = el(`<input class="etc" placeholder="어떤 것인지 적어 주세요" value="${esc(A[q.id+'_etc']||'')}">`);
   i.oninput = e => { A[q.id+'_etc'] = e.target.value; check(); };
-  screen.appendChild(i);
+  $screen.appendChild(i);
 }
 
 /* --- 숫자 --- */
@@ -527,7 +561,7 @@ function num(q){
     if(n!=='') delete A[q.id+'_skip'];
     check();
   };
-  screen.appendChild(w);
+  $screen.appendChild(w);
   if(q.skips){
     const box = el('<div class="opts" style="margin-top:.9rem"></div>');
     q.skips.forEach((t,i)=>{
@@ -540,7 +574,7 @@ function num(q){
       };
       box.appendChild(b);
     });
-    screen.appendChild(box);
+    $screen.appendChild(box);
   }
 }
 
@@ -564,8 +598,8 @@ function od(q){
     });
     return f;
   };
-  screen.appendChild(mk('o','어디서 출발하세요?'));
-  screen.appendChild(mk('d','어디로 가세요?'));
+  $screen.appendChild(mk('o','어디서 출발하세요?'));
+  $screen.appendChild(mk('d','어디로 가세요?'));
 }
 
 /* --- 시간 4분할 --- */
@@ -589,12 +623,12 @@ function split(q){
     box.appendChild(r);
   });
   box.appendChild(el('<div class="r sum"><div class="lab">모두 합해서</div><span id="q11sum" class="unit">– 분</span></div>'));
-  screen.appendChild(box);
+  $screen.appendChild(box);
 
   const sk = el(`<button type="button" class="opt multi" style="margin-top:.9rem"><span class="mark">✓</span><span class="t">잘 모르겠어요</span></button>`);
   if(A.q11.unknown) sk.classList.add('on');
   sk.onclick = ()=>{ A.q11 = A.q11.unknown ? {} : {unknown:true}; render(); };
-  screen.appendChild(sk);
+  $screen.appendChild(sk);
 
   function sum(){
     const t = ['walk','wait','ride','out'].reduce((a,k)=>a+(Number(A.q11[k])||0),0);
@@ -613,8 +647,8 @@ function scale(q){
     b.onclick = ()=>{ A[q.id]=i; render(); };
     g.appendChild(b);
   }
-  screen.appendChild(g);
-  screen.appendChild(el('<div class="ends"><span>0 · 전혀 만족 안 함</span><span>10 · 아주 만족</span></div>'));
+  $screen.appendChild(g);
+  $screen.appendChild(el('<div class="ends"><span>0 · 전혀 만족 안 함</span><span>10 · 아주 만족</span></div>'));
 }
 
 /* --- 5점 배터리 --- */
@@ -630,7 +664,7 @@ function bat(q){
       b.onclick = ()=>{ A[q.id][n]=i; render(); };
       row.appendChild(b);
     });
-    screen.appendChild(c);
+    $screen.appendChild(c);
   });
 }
 
@@ -645,7 +679,7 @@ function ladder(q){
     const chip = kind==='wait'
       ? (A.q11 && A.q11.wait ? `지금 기다리는 시간 <b>${A.q11.wait}분</b>` : `지금 기다리는 시간`)
       : `지금 차 타고 가는 시간 <b>${b}분</b>`;
-    screen.appendChild(el(`<div class="mychip">${chip}</div>`));
+    $screen.appendChild(el(`<div class="mychip">${chip}</div>`));
   }
 
   const yes = kind==='ud' ? '찬성한다' : '그래도 탄다';
@@ -670,7 +704,7 @@ function ladder(q){
     });
     card.appendChild(pair);
     if(A[q.id][i]!==undefined) card.classList.add('done');
-    screen.appendChild(card);
+    $screen.appendChild(card);
   });
 }
 
@@ -678,7 +712,82 @@ function ladder(q){
 function freetext(q){
   const t = el(`<textarea class="inp" placeholder="여기에 적어 주세요">${esc(A[q.id]||'')}</textarea>`);
   t.oninput = e => { A[q.id]=e.target.value; };
-  screen.appendChild(t);
+  $screen.appendChild(t);
+}
+
+/* ---------- 경품 응모: 개인정보 수집·이용 동의 ---------------------------- */
+/* ★ 아래 문의처는 실제 담당 부서로 반드시 바꾸세요 ★ */
+const PRIVACY = {
+  항목: '이름, 휴대전화번호',
+  목적: '설문 사례품(모바일 상품권) 발송 및 중복 응모 확인',
+  기간: '상품권 발송 완료 후 즉시 파기 (늦어도 조사 종료일부터 3개월 이내)',
+  문의: '(주)스페이스인사이트 송재인 010-6605-6251'
+};
+
+function consent(q){
+  $screen.appendChild(el(`<div class="legal">
+    <div><dt>수집 항목</dt><dd>${PRIVACY.항목}</dd></div>
+    <div><dt>이용 목적</dt><dd>${PRIVACY.목적}</dd></div>
+    <div><dt>보관 기간</dt><dd>${PRIVACY.기간}</dd></div>
+    <div><dt>문의처</dt><dd>${PRIVACY.문의}</dd></div>
+  </div>`));
+
+  $screen.appendChild(el(`<div class="refuse">동의하지 않으셔도 됩니다.
+    동의하지 않으셔도 <b>설문 응답은 그대로 제출</b>되며, 경품 추첨에서만 빠집니다.</div>`));
+
+  /* 만 14세 미만은 법정대리인 동의가 필요 — '19세 이하' 응답자에게만 확인 */
+  const minorRisk = (A.q2 === 0);
+  if(minorRisk){
+    $screen.appendChild(el('<p class="note" style="font-weight:700;margin-bottom:.5rem">만 14세 이상이신가요?</p>'));
+    const g = el('<div class="pair" style="margin-bottom:1rem"></div>');
+    [[1,'만 14세 이상입니다'],[0,'만 14세 미만입니다']].forEach(([v,label])=>{
+      const b = el(`<button type="button" class="rbtn ${v?'yes':'no'}">${label}</button>`);
+      if(A.age14===v) b.classList.add('on');
+      b.onclick = ()=>{ A.age14=v; if(v===0) A.consent=0; render(); };
+      g.appendChild(b);
+    });
+    $screen.appendChild(g);
+  }
+
+  if(minorRisk && A.age14===0){
+    $screen.appendChild(el(`<div class="blocked">만 14세 미만은 보호자(법정대리인)의 동의가 있어야
+      개인정보를 받을 수 있어서, 온라인으로는 경품 응모가 어렵습니다.<br>
+      설문 응답은 그대로 제출되니 <b>다음</b>을 눌러 주세요.</div>`));
+    return;
+  }
+  if(minorRisk && A.age14===undefined) return;
+
+  const box = el('<div class="opts"></div>');
+  [[1,'개인정보 수집·이용에 동의하고 경품에 응모합니다'],
+   [0,'동의하지 않습니다 (경품 응모 안 함)']].forEach(([v,label])=>{
+    const b = el(`<button type="button" class="opt"><span class="mark">✓</span><span class="t">${label}</span></button>`);
+    if(A.consent===v) b.classList.add('on');
+    b.onclick = ()=>{
+      A.consent=v;
+      if(v===1) A.consentAt = new Date().toLocaleString('sv-SE');
+      else { delete A.name; delete A.phone; delete A.consentAt; }
+      render();
+    };
+    box.appendChild(b);
+  });
+  $screen.appendChild(box);
+}
+
+function prize(q){
+  const f = el(`<div>
+    <div class="field"><label>이름</label>
+      <input class="inp" id="pname" placeholder="홍길동" value="${esc(A.name||'')}"></div>
+    <div class="field"><label>휴대전화번호 <span class="sub">'-' 없이 숫자만</span></label>
+      <input class="inp" id="pphone" inputmode="numeric" placeholder="01012345678" value="${esc(A.phone||'')}"></div>
+  </div>`);
+  f.querySelector('#pname').oninput = e => { A.name = e.target.value; check(); };
+  f.querySelector('#pphone').oninput = e => {
+    e.target.value = e.target.value.replace(/[^0-9]/g,'').slice(0,11);
+    A.phone = e.target.value; check();
+  };
+  $screen.appendChild(f);
+  $screen.appendChild(el(`<div class="refuse">당첨되신 분께만 문자로 연락드립니다.
+    번호가 틀리면 상품권을 보내드릴 수 없으니 한 번 더 확인해 주세요.</div>`));
 }
 
 /* ---------- 다음 버튼 활성 조건 -------------------------------------------- */
@@ -701,6 +810,12 @@ function answered(q){
     case 'bat':   return q.items.every((_,i)=> v && v[i]!==undefined);
     case 'ladder':return ladderRows(q.kind).every((_,i)=> v && v[i]!==undefined);
     case 'text':  return true;
+    case 'consent':
+      if(A.q2===0 && A.age14===undefined) return false;
+      if(A.q2===0 && A.age14===0) return true;
+      return A.consent!==undefined;
+    case 'prize':
+      return !!(A.name||'').trim() && /^01[0-9]{8,9}$/.test(A.phone||'');
   }
   return true;
 }
@@ -713,8 +828,8 @@ function check(){
 
 /* ---------- 표지 / 완료 ---------------------------------------------------- */
 function cover(){
-  top.hidden = true; nav.hidden = true;
-  screen.innerHTML = `
+  $top.hidden = true; $nav.hidden = true;
+  $screen.innerHTML = `
     <div class="cover">
       <div class="whale">울산광역시 거점형 스마트시티 조성사업</div>
       <h1>울산마실고래를<br>더 편하게 만들고 싶습니다.</h1>
@@ -734,12 +849,15 @@ function cover(){
 }
 
 function done(){
-  top.hidden = true; nav.hidden = true;
+  $top.hidden = true; $nav.hidden = true;
   const payload = collect();
-  screen.innerHTML = `
+  $screen.innerHTML = `
     <div class="done-mark">✓</div>
     <h1 class="q" style="text-align:center">답변 감사합니다.</h1>
     <p class="note" style="text-align:center">보내주신 의견은 마실고래를 고치는 데 쓰입니다.</p>
+    ${A.consent===1
+      ? '<div class="refuse" style="text-align:center">경품 응모가 완료되었습니다. 당첨되시면 문자로 연락드립니다.</div>'
+      : ''}
     <div id="status" class="sendbox">보내는 중…</div>
     <button type="button" class="ghost" id="retry" hidden>다시 보내기</button>
     <button type="button" class="ghost" id="cp">응답 내용 복사하기</button>
@@ -781,6 +899,7 @@ function collect(){
   const o = {};
   const put = (k,v)=>{ o[k] = (v===undefined||v===null) ? '' : v; };
 
+  put('응답ID', A.rid);
   put('제출시각', new Date().toLocaleString('sv-SE'));   // 2026-07-27 14:03:22
   put('SP버전', A.spver||'');
   put('SP기준시간', ver().base);
@@ -838,11 +957,31 @@ function collect(){
       if(v[i]===1){ if(seenNo) broken = 1; else limit = r.add; }
       if(v[i]===0) seenNo = true;
     });
-    put(id+'_수용한계', limit);
+    let maxYes = 0;
+    rows.forEach((r,i)=>{ if(v[i]===1 && r.add>maxYes) maxYes = r.add; });
+    put(id+'_수용한계', limit);      // 첫 거절 직전까지 (보수적)
+    put(id+'_최대수락', maxYes);     // 수락한 것 중 가장 큰 값
     put(id+'_역전응답', broken);   // 1이면 논리 역전(예: 5분 수락, 3분 거절)
   });
 
   put('q33', A.q33||'');
+
+  /* 경품 응모 — 동의 여부만 응답 시트에 남긴다 */
+  put('경품동의', A.consent===1 ? 1 : 0);
+  if(A.q2===0) put('만14세이상', A.age14===undefined ? '' : A.age14);
+
+  /* 개인정보는 '_개인정보'로 분리해서 보낸다.
+     수신 스크립트가 이 묶음만 별도 시트에 적고 응답 시트에는 남기지 않는다. */
+  if(A.consent===1 && A.name && A.phone){
+    o._개인정보 = {
+      응답ID: A.rid,
+      이름: A.name,
+      연락처: A.phone,
+      동의시각: A.consentAt || '',
+      수집항목: PRIVACY.항목,
+      보관기간: PRIVACY.기간
+    };
+  }
   return o;
 }
 
@@ -851,7 +990,7 @@ function collect(){
    구글 앱스 스크립트를 '웹 앱'으로 배포하고 받은 주소(.../exec)를 넣으세요.
    비워두면 전송하지 않고 기기에만 남습니다.
    ===================================================================== */
-const SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbwQuAJJ-n_UquadVPxn9dGhgjDcHrXqtiOyiz7FtZTIR-1OHmao3cdlwUzCs1QTPG4V/exec';
+const SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbyI7D46RNBsRDyk949iutib3a14JiMQkC9JDCS4mqG97Jbp91yCbvCyk-qVTEPQ2Tg/exec';
 
 async function send(data){
   if(!SUBMIT_URL){

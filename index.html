@@ -1,0 +1,1096 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>울산마실고래 이용자 설문</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+
+<style>
+  :root{
+    --ink:#08252F;
+    --ink-soft:#456470;
+    --sea:#12798F;
+    --sea-deep:#0F4C5C;
+    --sea-pale:#DCEAED;
+    --slate:#47606B;
+    --mist:#E9EFF0;
+    --paper:#FFFFFF;
+    --line:#C9D8DB;
+    --shadow:0 1px 2px rgba(8,37,47,.06), 0 8px 24px rgba(8,37,47,.07);
+    --r:14px;
+    font-size:17px;
+  }
+  :root[data-size="l"]{ font-size:19px; }
+  :root[data-size="xl"]{ font-size:21.5px; }
+
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0;}
+  body{
+    font-family:"Pretendard","Pretendard Variable",-apple-system,BlinkMacSystemFont,
+      "Apple SD Gothic Neo","Malgun Gothic","맑은 고딕",system-ui,sans-serif;
+    background:var(--mist);
+    color:var(--ink);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    word-break:keep-all;
+  }
+  button{font:inherit; color:inherit; cursor:pointer;}
+  input,select,textarea{font:inherit; color:inherit;}
+
+  /* ---------- shell ---------- */
+  #app{
+    max-width:520px; margin:0 auto; min-height:100dvh;
+    display:flex; flex-direction:column;
+    background:var(--mist);
+  }
+
+  /* ---------- top bar ---------- */
+  .top{
+    position:sticky; top:0; z-index:20;
+    background:var(--mist);
+    padding:calc(env(safe-area-inset-top) + .5rem) 1.1rem .55rem;
+  }
+  .top-row{display:flex; align-items:center; gap:.6rem;}
+  .count{
+    font-size:.82rem; font-weight:650; letter-spacing:.02em;
+    color:var(--ink-soft); font-variant-numeric:tabular-nums; white-space:nowrap;
+  }
+  .count b{color:var(--sea); font-weight:800;}
+  .track{flex:1; height:6px; border-radius:99px; background:#CFDDE0; overflow:hidden;}
+  .fill{height:100%; width:0; border-radius:99px; background:var(--sea); transition:width .32s cubic-bezier(.2,.7,.3,1);}
+  .sizebtn{
+    border:1px solid var(--line); background:var(--paper); border-radius:9px;
+    padding:.3rem .5rem; font-size:.78rem; font-weight:700; color:var(--ink-soft);
+    line-height:1; white-space:nowrap;
+  }
+
+  /* ---------- scroll area ---------- */
+  .screen{
+    flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch;
+    padding:.4rem 1.1rem 1.5rem;
+  }
+
+  .eyebrow{
+    font-size:.76rem; font-weight:750; letter-spacing:.11em;
+    color:var(--sea); text-transform:none; margin:.5rem 0 .5rem;
+  }
+  h1.q{
+    font-size:1.32rem; font-weight:750; line-height:1.42;
+    margin:0 0 .5rem; letter-spacing:-.015em;
+  }
+  .hint{
+    font-size:.9rem; color:var(--ink-soft); margin:0 0 1rem;
+    background:var(--paper); border-left:3px solid var(--sea-pale);
+    padding:.6rem .75rem; border-radius:0 10px 10px 0;
+  }
+  .note{font-size:.88rem; color:var(--ink-soft); margin:.1rem 0 1rem;}
+
+  /* ---------- options ---------- */
+  .opts{display:flex; flex-direction:column; gap:.55rem;}
+  .opt{
+    display:flex; align-items:center; gap:.7rem; width:100%;
+    min-height:3.55rem; padding:.7rem .9rem;
+    background:var(--paper); border:1.5px solid var(--line);
+    border-radius:var(--r); text-align:left;
+    font-size:1.02rem; font-weight:550;
+    transition:border-color .12s, background .12s, transform .08s;
+  }
+  .opt:active{transform:scale(.985);}
+  .opt .mark{
+    flex:none; width:1.6rem; height:1.6rem; border-radius:50%;
+    border:1.5px solid var(--line); background:#fff;
+    display:grid; place-items:center; font-size:.9rem; font-weight:800; color:transparent;
+  }
+  .opt.multi .mark{border-radius:7px;}
+  .opt.on{border-color:var(--sea); background:var(--sea-pale);}
+  .opt.on .mark{background:var(--sea); border-color:var(--sea); color:#fff;}
+  .opt.on span.t{font-weight:700;}
+
+  .etc{
+    margin-top:-.15rem; width:100%; padding:.75rem .9rem;
+    border:1.5px solid var(--sea); border-radius:var(--r); background:#fff;
+  }
+
+  /* ---------- inputs ---------- */
+  .field{margin-bottom:.9rem;}
+  .field label{display:block; font-size:.95rem; font-weight:650; margin-bottom:.35rem;}
+  .field .sub{font-size:.84rem; font-weight:450; color:var(--ink-soft);}
+  .inp{
+    width:100%; padding:.85rem .9rem; background:var(--paper);
+    border:1.5px solid var(--line); border-radius:12px; font-size:1.05rem;
+  }
+  .inp:focus, .etc:focus, .opt:focus-visible, .rbtn:focus-visible, .nav button:focus-visible{
+    outline:3px solid #7FB8C4; outline-offset:2px;
+  }
+  .withunit{display:flex; align-items:center; gap:.5rem;}
+  .withunit .inp{text-align:right; font-variant-numeric:tabular-nums; font-weight:700;}
+  .unit{font-size:1.05rem; font-weight:700; color:var(--ink-soft); flex:none;}
+  .row3{display:grid; grid-template-columns:1fr 1fr; gap:.5rem;}
+  textarea.inp{min-height:9rem; resize:vertical; line-height:1.6;}
+
+  /* time-split table */
+  .split{background:var(--paper); border:1.5px solid var(--line); border-radius:var(--r); overflow:hidden;}
+  .split .r{display:flex; align-items:center; gap:.6rem; padding:.7rem .8rem; border-bottom:1px solid var(--mist);}
+  .split .r:last-child{border-bottom:0;}
+  .split .lab{flex:1; font-size:.95rem; line-height:1.35;}
+  .split .lab i{display:block; font-style:normal; font-size:.8rem; color:var(--ink-soft);}
+  .split .inp{width:4.6rem; padding:.6rem .5rem;}
+  .split .sum{background:var(--sea-pale); font-weight:750;}
+
+  /* ---------- 0-10 scale ---------- */
+  .scale{display:grid; grid-template-columns:repeat(6,1fr); gap:.45rem;}
+  .sbtn{
+    aspect-ratio:1; border:1.5px solid var(--line); background:var(--paper);
+    border-radius:12px; font-size:1.15rem; font-weight:750;
+    font-variant-numeric:tabular-nums; display:grid; place-items:center;
+  }
+  .sbtn.on{background:var(--sea); border-color:var(--sea); color:#fff;}
+  .ends{display:flex; justify-content:space-between; font-size:.82rem; color:var(--ink-soft); margin-top:.5rem;}
+
+  /* ---------- 5-point battery ---------- */
+  .bat{background:var(--paper); border:1.5px solid var(--line); border-radius:var(--r); padding:.85rem .8rem; margin-bottom:.6rem;}
+  .bat h3{margin:0 0 .6rem; font-size:1.02rem; font-weight:700; line-height:1.35;}
+  .pips{display:grid; grid-template-columns:repeat(5,1fr); gap:.35rem;}
+  .pip{
+    min-height:3.1rem; border:1.5px solid var(--line); background:#fff; border-radius:10px;
+    font-size:.72rem; font-weight:650; color:var(--ink-soft); line-height:1.2;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.12rem; padding:.2rem;
+  }
+  .pip b{font-size:1rem; font-weight:800; color:var(--ink);}
+  .pip.on{background:var(--sea); border-color:var(--sea); color:#EAF4F6;}
+  .pip.on b{color:#fff;}
+
+  /* ---------- SIGNATURE: time ladder ---------- */
+  .mychip{
+    display:inline-flex; align-items:center; gap:.4rem;
+    background:var(--sea-deep); color:#fff; border-radius:99px;
+    padding:.4rem .85rem; font-size:.85rem; font-weight:650; margin-bottom:.9rem;
+  }
+  .mychip b{font-size:1.05rem; font-weight:800; font-variant-numeric:tabular-nums;}
+  .rung{
+    background:var(--paper); border:1.5px solid var(--line);
+    border-radius:var(--r); padding:.85rem .85rem .8rem; margin-bottom:.7rem;
+  }
+  .rung.done{border-color:var(--sea-pale);}
+  .bar{display:flex; height:13px; border-radius:99px; overflow:hidden; background:#EDF2F3; margin-bottom:.6rem;}
+  .bar .base{background:var(--slate);}
+  .bar .add{background:var(--sea);}
+  .rlab{display:flex; align-items:baseline; gap:.45rem; margin-bottom:.65rem; flex-wrap:wrap;}
+  .plus{
+    font-size:1.45rem; font-weight:800; color:var(--sea);
+    font-variant-numeric:tabular-nums; letter-spacing:-.02em; line-height:1;
+  }
+  .arrow{color:var(--line); font-weight:700;}
+  .tot{font-size:1.05rem; font-weight:700; font-variant-numeric:tabular-nums;}
+  .tot em{font-style:normal; font-weight:500; color:var(--ink-soft); font-size:.92rem;}
+  .pair{display:grid; grid-template-columns:1fr 1fr; gap:.5rem;}
+  .rbtn{
+    min-height:3.4rem; border:1.5px solid var(--line); background:#fff;
+    border-radius:11px; font-size:1.02rem; font-weight:700; color:var(--ink-soft);
+    transition:background .12s, border-color .12s, color .12s, transform .08s;
+  }
+  .rbtn:active{transform:scale(.98);}
+  .rbtn.yes.on{background:var(--sea); border-color:var(--sea); color:#fff;}
+  .rbtn.no.on{background:var(--slate); border-color:var(--slate); color:#fff;}
+
+  /* ---------- nav ---------- */
+  .nav{
+    position:sticky; bottom:0; z-index:20;
+    display:flex; gap:.6rem; padding:.7rem 1.1rem calc(env(safe-area-inset-bottom) + .8rem);
+    background:linear-gradient(to top, var(--mist) 62%, rgba(233,239,240,0));
+  }
+  .nav button{
+    min-height:3.6rem; border-radius:13px; font-size:1.08rem; font-weight:750;
+    border:1.5px solid var(--line); background:var(--paper); color:var(--ink-soft);
+    padding:0 1rem; transition:transform .08s, opacity .15s;
+  }
+  .nav button:active{transform:scale(.985);}
+  .nav .next{flex:1; background:var(--sea); border-color:var(--sea); color:#fff; box-shadow:var(--shadow);}
+  .nav .next[disabled]{background:#B8CCD0; border-color:#B8CCD0; color:#F3F8F9; box-shadow:none;}
+
+  /* ---------- intro / done ---------- */
+  .cover{padding:1.2rem 0 0;}
+  .whale{
+    font-size:.78rem; font-weight:750; letter-spacing:.14em; color:var(--sea);
+  }
+  .cover h1{font-size:1.75rem; line-height:1.34; font-weight:800; letter-spacing:-.025em; margin:.5rem 0 .9rem;}
+  .cover p{font-size:1rem; color:var(--ink-soft); margin:0 0 1rem;}
+  .facts{background:var(--paper); border-radius:var(--r); padding:.3rem .95rem; box-shadow:var(--shadow); margin-bottom:1rem;}
+  .facts div{display:flex; gap:.8rem; padding:.7rem 0; border-bottom:1px solid var(--mist); font-size:.95rem;}
+  .facts div:last-child{border-bottom:0;}
+  .facts dt{flex:none; width:5.2rem; font-weight:700; color:var(--sea-deep);}
+  .facts dd{margin:0; color:var(--ink-soft);}
+  .done-mark{
+    width:4.5rem; height:4.5rem; border-radius:50%; background:var(--sea); color:#fff;
+    display:grid; place-items:center; font-size:2.2rem; margin:2rem auto 1.2rem;
+  }
+  .out{
+    width:100%; min-height:11rem; font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:.72rem; line-height:1.5; padding:.8rem; border-radius:12px;
+    border:1.5px solid var(--line); background:var(--paper); margin-top:.8rem;
+  }
+  .scene{
+    border-radius:16px; padding:1.05rem 1rem; margin:.2rem 0 1.1rem;
+    border:2.5px solid;
+  }
+  .scene .badge{
+    display:inline-block; font-size:.88rem; font-weight:800; letter-spacing:-.01em;
+    padding:.34rem .8rem; border-radius:99px; margin-bottom:.7rem; color:#fff;
+  }
+  .scene p{font-size:1.18rem; font-weight:600; line-height:1.55; margin:0; letter-spacing:-.015em;}
+  .scene.sea{background:#D6E9ED; border-color:#0F6C80;}
+  .scene.sea .badge{background:#0F4C5C;}
+  .scene.amber{background:#FBEBD5; border-color:#C0761A;}
+  .scene.amber .badge{background:#8E540B;}
+  h1.q.small{font-size:1.08rem; font-weight:700; color:var(--ink-soft); margin-bottom:.7rem;}
+  .legal{
+    background:var(--paper); border:1.5px solid var(--line); border-radius:var(--r);
+    padding:.2rem .9rem; margin-bottom:1rem;
+  }
+  .legal div{display:flex; gap:.7rem; padding:.7rem 0; border-bottom:1px solid var(--mist); font-size:.93rem; line-height:1.45;}
+  .legal div:last-child{border-bottom:0;}
+  .legal dt{flex:none; width:5.4rem; font-weight:700; color:var(--sea-deep);}
+  .legal dd{margin:0; color:var(--ink);}
+  .refuse{
+    font-size:.9rem; color:var(--ink-soft); background:#FDF4E3;
+    border:1.5px solid #E0B96A; border-radius:12px; padding:.75rem .85rem; margin-bottom:1rem;
+  }
+  .blocked{
+    font-size:.95rem; background:#FBEDEA; border:1.5px solid #D08A78; color:#8A3A24;
+    border-radius:12px; padding:.85rem .9rem; margin:.9rem 0; line-height:1.5;
+  }
+  .bigmark{
+    width:5rem; height:5rem; border-radius:50%; display:grid; place-items:center;
+    margin:2.6rem auto 1.3rem; font-size:2.4rem; color:#fff;
+  }
+  .bigmark.ok{background:var(--sea);}
+  .bigmark.bad{background:#C25B3E;}
+  .spin{
+    width:3.6rem; height:3.6rem; margin:2.8rem auto 1.4rem; display:block;
+    border:5px solid #CBDDE1; border-top-color:var(--sea); border-radius:50%;
+    animation:sp 1s linear infinite;
+  }
+  @keyframes sp{to{transform:rotate(360deg);}}
+  .endtitle{font-size:1.55rem; font-weight:800; text-align:center; letter-spacing:-.025em; margin:0 0 .6rem;}
+  .endsub{font-size:1.05rem; color:var(--ink-soft); text-align:center; margin:0 0 1.4rem; line-height:1.6;}
+  .closebox{
+    background:var(--sea-pale); border:2px solid var(--sea); border-radius:14px;
+    padding:1rem; text-align:center; font-size:1.08rem; font-weight:700; color:var(--sea-deep);
+  }
+  .sendbox{
+    width:100%; min-height:3.3rem; border-radius:12px; margin-top:1rem;
+    display:flex; align-items:center; justify-content:center; text-align:center;
+    padding:.8rem 1rem; font-size:.98rem; font-weight:650;
+    background:var(--paper); border:1.5px solid var(--line); color:var(--ink-soft);
+  }
+  .sendbox.ok{background:var(--sea-pale); border-color:var(--sea); color:var(--sea-deep);}
+  .sendbox.warn{background:#FDF4E3; border-color:#E0B96A; color:#7A5A18;}
+  .sendbox.bad{background:#FBEDEA; border-color:#D08A78; color:#8A3A24;}
+  .ghost{
+    width:100%; min-height:3.3rem; border-radius:12px; margin-top:.6rem;
+    border:1.5px solid var(--sea); background:#fff; color:var(--sea-deep); font-weight:750; font-size:1rem;
+  }
+  @media (prefers-reduced-motion:reduce){ *{transition:none !important; animation:none !important;} }
+</style>
+
+<div id="app">
+  <div class="top" id="top" hidden>
+    <div class="top-row">
+      <span class="count" id="count"></span>
+      <span class="track"><span class="fill" id="fill"></span></span>
+      <button class="sizebtn" id="sizebtn" type="button">글자 크게</button>
+    </div>
+  </div>
+  <div class="screen" id="screen"></div>
+  <div class="nav" id="nav" hidden>
+    <button type="button" id="prev">이전</button>
+    <button type="button" class="next" id="next">다음</button>
+  </div>
+</div>
+
+<script>
+/* =========================================================================
+   울산마실고래 이용자 설문 — 모바일
+   응답은 브라우저 메모리에만 보관됩니다. 서버 전송은 postAnswers()에서 설정.
+   ========================================================================= */
+
+const A = {};            // 응답 저장소
+A.rid = 'R' + Date.now().toString(36).toUpperCase()
+            + Math.random().toString(36).slice(2,6).toUpperCase();
+let idx = -1;            // -1 = 표지
+
+/* SP 버전: 기준 차내시간 / 추가시간 단계 -------------------------------- */
+const STEP = [1, 3, 5, 10];
+const VER = {
+  A: { base: 5,  label: '5분쯤' },
+  B: { base: 10, label: '10분쯤' },
+  C: { base: 15, label: '15분쯤' },
+  D: { base: 20, label: '20분 이상' }
+};
+const ver = () => VER[A.spver] || VER.B;
+
+const GU = ['중구','남구','동구','북구','울주군'];
+
+/* ---------- 문항 정의 ---------------------------------------------------- */
+const Q = [
+
+/* Ⅰ. 응답자 특성 */
+{id:'q1', sec:'응답자 정보', t:'성별을 알려 주세요.', type:'one',
+ o:['남성','여성']},
+
+{id:'q2', sec:'응답자 정보', t:'연세가 어떻게 되세요?', type:'one',
+ o:['19세 이하','20대','30대','40대','50대','60대','70세 이상']},
+
+{id:'q3', sec:'응답자 정보', t:'하시는 일이 무엇인가요?', type:'one',
+ o:['사무·관리직','생산·기술직','서비스·판매직','자영업','전문·자유직','학생','전업주부','무직·은퇴','기타'], etc:8},
+
+{id:'q4', sec:'응답자 정보', t:'가구의 한 달 평균 소득은 어느 정도인가요?',
+ hint:'추가 시간과 요금에 대한 생각이 소득에 따라 어떻게 다른지 보기 위한 문항입니다.', type:'one',
+ o:['200만 원 미만','200~300만 원','300~400만 원','400~500만 원','500~600만 원','600만 원 이상','모름 · 답하고 싶지 않음']},
+
+{id:'q5', sec:'응답자 정보', t:'다음 중 해당되는 것이 있으신가요?',
+ hint:'해당되는 것을 모두 골라 주세요.', type:'many',
+ o:['해당 없음','만 65세 이상','휠체어를 이용함','지팡이·보행기 등을 이용함','눈이나 귀가 불편함','임신 중이거나 유모차를 이용함','기타'], etc:6, excl:0},
+
+{id:'q6', sec:'응답자 정보', t:'마실고래를 타실 때 주로 내는 요금은 얼마인가요?', type:'one',
+ o:['성인 요금 1,500원','청소년 요금 950원','어린이 요금 500원','환승이라 더 안 냄','탈 때마다 다름','잘 모르겠음']},
+
+/* Ⅱ. 이용행태 */
+{id:'q7', sec:'이용 습관', t:'마실고래를 얼마나 자주 타세요?', type:'one',
+ o:['주 5회 이상','주 2~4회','주 1회','한 달에 1~3회','한 달에 1회도 안 됨','예전엔 탔지만 최근 3개월은 안 탐']},
+
+{id:'q8', sec:'이용 습관', t:'마실고래를 주로 어떤 일로 타세요?',
+ hint:'가장 자주 타는 이유 하나만 골라 주세요. 오고 가는 길이면 처음 출발한 곳을 기준으로 골라 주세요.', type:'one',
+ o:['출퇴근','등하교','업무','친구 만남·운동·취미','학원','장보기·쇼핑','병원','복지관·경로당','기타'], etc:8},
+
+{id:'q9', sec:'이용 습관', t:'그때 어디서 어디로 가세요?',
+ hint:'자세한 주소 대신 아파트·학교·마트·병원·정류장 이름이나 동 이름을 적어 주세요.', type:'od'},
+
+{id:'q10', sec:'이용 습관', t:'그 길은 주로 언제 다니세요?', type:'one',
+ o:['평일 아침 (7~9시)','평일 오전 (9~12시)','평일 낮 (12~17시)','평일 저녁 (17~19시)','평일 밤 (19시 이후)','주말·공휴일']},
+
+/* Ⅲ. 통행시간 */
+{id:'q11', sec:'걸리는 시간', t:'그 길을 마실고래로 갈 때, 시간이 얼마나 걸리나요?',
+ hint:'대충 몇 분쯤인지만 적어 주시면 됩니다. 잘 모르시면 아래 칸을 눌러 주세요.', type:'split'},
+
+{id:'q12', sec:'걸리는 시간', t:'차를 호출하고부터 도착하기까지의 시간은 어떠셨나요?', type:'one',
+ o:['생각보다 짧았다','생각한 만큼이었다','생각보다 길었다','탈 때마다 많이 달랐다']},
+
+{id:'q13', sec:'걸리는 시간', t:'앱에서 알려주는 도착 시간보다 늦게 온 적이 있나요?', type:'one',
+ o:['거의 없었다','가끔 있었다','자주 있었다','거의 매번 그랬다','도착 시간을 안 봐서 모르겠다']},
+
+{id:'q13b', sec:'걸리는 시간', t:'앱에서 알려주는 시간보다 몇 분까지 늦어도 괜찮으세요?', type:'one',
+ o:['1분','3분','5분','10분','15분 이상도 괜찮다','조금도 늦으면 안 된다']},
+
+{id:'q14', sec:'걸리는 시간', t:'마실고래가 생기기 전에는 그 길을 무엇으로 다니셨나요?', type:'one',
+ o:['직접 운전하는 승용차','가족·지인 차 얻어 탐','시내버스','택시','장애인 콜택시','걸어서','자전거·전동킥보드','예전엔 안 다니던 길','기타'], etc:8},
+
+{id:'q15', sec:'걸리는 시간', t:'그때는 편도로 몇 분쯤 걸렸나요?',
+ hint:'걸어간 시간, 기다린 시간, 갈아탄 시간까지 모두 합해서요.', type:'num',
+ unit:'분', skips:['기억이 안 난다','예전엔 안 다니던 길이다']},
+
+/* Ⅳ. 만족도 */
+{id:'q18', sec:'만족도', t:'마실고래 서비스에 전체적으로 얼마나 만족하세요?',
+ hint:'0점은 전혀 만족하지 않음, 10점은 아주 만족함입니다.', type:'scale'},
+
+{id:'q19a', sec:'만족도', t:'다음 각각에 얼마나 만족하세요?', type:'bat',
+ items:['차를 부르고 정류장에서 기다리는 시간',
+        '차를 호출한 시간 기준으로 차가 오기까지의 시간',
+        '목적지까지 가는 시간',
+        '도착 시간 안내가 정확한지',
+        '타는 곳까지 가기 편한지']},
+
+{id:'q19b', sec:'만족도', t:'다음 각각에 얼마나 만족하세요?', type:'bat',
+ items:['앱으로 부르고 예약하기','요금','차 안이 깨끗하고 편한지','기사님 응대']},
+
+/* Ⅴ. 승용차 */
+{id:'q20', sec:'승용차 이용', t:'마실고래를 타고 나서 승용차 타는 일이 줄었나요?',
+ hint:'직접 운전하신 것뿐 아니라 가족·지인 차를 얻어 타신 것도 포함해 주세요.', type:'one',
+ o:['많이 줄었다','조금 줄었다','그대로다','오히려 늘었다','원래 승용차를 거의 안 탄다','잘 모르겠다']},
+
+{id:'q21', sec:'승용차 이용', t:'그러면 승용차 대신 마실고래를 타는 것이 일주일에 몇 번쯤 되나요?',
+ hint:'가는 편, 오는 편을 따로 세어 주세요.', type:'num', unit:'번',
+ skipIf:()=>!(A.q20===0||A.q20===1)},
+
+/* Ⅵ. SP */
+{id:'q22', sec:'시간에 대한 생각', t:'마실고래를 타면 차 안에 앉아 계시는 시간이 보통 얼마나 되나요?',
+ hint:'기다린 시간, 걸어간 시간은 빼고 차에 타고 있는 시간만 생각해 주세요. 비슷한 것을 고르시면 됩니다.',
+ type:'one', o:['5분쯤 (아주 가까워요)','10분쯤','15분쯤','20분 이상 (꽤 멀리 가요)'],
+ map:['A','B','C','D']},
+
+{id:'q23', sec:'시간에 대한 생각', type:'ladder', kind:'ride',
+ scene:{tone:'sea', badge:'다른 손님이 함께 타는 경우',
+   text:'마실고래는 <b>여러 손님이 함께 타는 차</b>입니다.<br>가는 길에 <b>다른 손님</b>이 함께 타면 시간이 조금 더 걸릴 수 있어요.'},
+ t:'시간이 더 걸려도 그래도 타시겠어요?'},
+
+{id:'q24', sec:'시간에 대한 생각', type:'ladder', kind:'wait',
+ scene:{tone:'sea', badge:'차를 기다리는 시간',
+   text:'이번에는 <b>차를 부르고 기다리는 시간</b>입니다.<br>다른 손님과 차를 맞추다 보면 더 기다리실 수 있어요.'},
+ t:'더 기다려야 해도 그래도 타시겠어요?'},
+
+{id:'q25', sec:'시간에 대한 생각', type:'ladder', kind:'wheel',
+ scene:{tone:'amber', badge:'휠체어 타신 분이 함께 타는 경우',
+   text:'이번에는 가는 길에 <b>휠체어를 타신 분</b>이 함께 타게 되었습니다.<br>경사로를 내리고, 휠체어를 태우고, 안전하게 고정하는 데 시간이 조금 걸립니다.'},
+ t:'그만큼 늦어져도 그래도 타시겠어요?'},
+
+{id:'q26', sec:'시간에 대한 생각', t:'이런저런 이유로 늦어질 때, 최대 몇 분까지 참고 타실 수 있으세요?', type:'one',
+ o:['1분까지','3분까지','5분까지','10분까지','15분 이상도 괜찮다','조금도 늦으면 안 된다']},
+
+{id:'q27', sec:'시간에 대한 생각',
+ t:'돈을 조금 더 내면 다른 손님을 안 태우고 바로 가는 방법이 생긴다면, 얼마까지 내시겠어요?',
+ hint:'5분쯤 빨리 도착합니다. 지금 요금은 1,500원이에요. 실제로 요금을 올린다는 뜻은 아닙니다.',
+ type:'one', o:['300원 더 (1,800원)','500원 더 (2,000원)','1,000원 더 (2,500원)','더 내고 싶지 않다 · 그냥 함께 타겠다']},
+
+{id:'q29', sec:'시간에 대한 생각', t:'여러 손님이 함께 타는 방식, 전체적으로 어떻게 생각하세요?', type:'one',
+ o:['아주 싫다','싫은 편이다','그저 그렇다','괜찮은 편이다','아주 괜찮다']},
+
+{id:'q30', sec:'유니버설 디자인 차량', type:'one',
+ scene:{tone:'amber', badge:'유니버설 디자인 차량이란',
+   text:'<b>휠체어를 타신 채로 탈 수 있는 차량</b>을 말합니다.<br>바닥이 낮고, 경사로가 있고, 휠체어를 안전하게 고정하는 장치를 갖춘<br><b>누구나 타기 쉽게 만든 차</b>입니다.'},
+ t:'이런 차량을 마실고래에 도입하는 것을 어떻게 생각하세요?',
+ o:['아주 반대한다','반대하는 편이다','그저 그렇다','찬성하는 편이다','아주 찬성한다']},
+
+{id:'q28', sec:'유니버설 디자인 차량', type:'ladder', kind:'ud',
+ scene:{tone:'amber', badge:'자리가 줄어드는 대신',
+   text:'유니버설 디자인 차량은 휠체어 공간이 필요해서<br><b>자리가 줄어듭니다 (12인 → 7인)</b>.<br>그만큼 배차할 수 있는 차가 적어져 <b>기다리는 시간이 길어질 수</b> 있습니다.'},
+ t:'그래도 이런 차를 늘리는 데 찬성하세요?'},
+
+/* Ⅶ. 개선 */
+{id:'q31', sec:'바라는 점', t:'도착 시간이 바뀔 때, 무엇이 있으면 가장 덜 불편하실까요?',
+ hint:'2개까지 고를 수 있어요.', type:'many', max:2,
+ o:['처음부터 "15~22분 후"처럼 범위로 알려주기','함께 타면 최대 몇 분 더 걸리는지 미리 알려주기','휠체어 손님이 타서 멈출 때 바로 알려주기','가는 동안 도착 시간을 계속 새로 알려주기','왜 늦어지는지 앱에서 알려주기','많이 늦어지면 보상해 주기','따로 알려주지 않아도 괜찮다','기타'], etc:7},
+
+{id:'q32', sec:'바라는 점', t:'마실고래에서 가장 먼저 좋아졌으면 하는 것은 무엇인가요?',
+ hint:'2개까지 고를 수 있어요.', type:'many', max:2,
+ o:['부르고 기다리는 시간 줄이기','도착 시간 안내 정확하게','목적지까지 빨리 가기','함께 타고 돌아가는 방식 개선','앱으로 부르기 쉽게','차가 어디쯤 오는지 알려주기','타는 곳까지 가기 편하게','요금','차 안 깨끗하고 편하게','기사님 응대','몸이 불편한 분을 위한 시설','다니는 지역·시간 늘리기','기타'], etc:12},
+
+{id:'q33', sec:'바라는 점', t:'더 하고 싶은 말씀이 있으면 자유롭게 적어 주세요.',
+ hint:'안 쓰셔도 괜찮습니다.', type:'text', optional:true},
+
+/* Ⅷ. 경품 받기 — 개인정보 수집·이용 동의 */
+{id:'consent', sec:'경품 받기', type:'consent',
+ t:'끝까지 답해 주신 모든 분께 모바일 상품권을 드립니다.'},
+
+{id:'prize', sec:'경품 받기', type:'prize',
+ t:'상품권을 보내드릴 곳을 알려 주세요.',
+ hint:'입력하신 정보는 상품권 발송에만 쓰고, 발송이 끝나면 바로 지웁니다.',
+ skipIf:()=>A.consent!==1}
+];
+
+/* ---------- 유틸 --------------------------------------------------------- */
+const el = (h)=>{const d=document.createElement('div'); d.innerHTML=h.trim(); return d.firstElementChild;};
+const esc = (s)=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const active = ()=> Q.filter(q => !q.skipIf || !q.skipIf());
+
+function ladderRows(kind){
+  const b = ver().base;
+  if(kind==='ud') return [
+    {add:0,  txt:'기다리는 시간이 지금과 같다면'},
+    {add:3,  txt:'기다리는 시간이 <b>3분</b> 길어진다면'},
+    {add:5,  txt:'기다리는 시간이 <b>5분</b> 길어진다면'}
+  ];
+  if(kind==='wait'){
+    const w = A.q11 && A.q11.wait ? Number(A.q11.wait) : null;
+    return STEP.map(n=>({add:n, base:w, txt:`<b>${n}분</b> 더 기다린다면`,
+      tot: w ? `총 <b>${w+n}분</b> 기다림` : null}));
+  }
+  return STEP.map(n=>({add:n, base:b,
+    txt: kind==='wheel' ? `<b>${n}분</b> 늦어져서` : `<b>${n}분</b> 더 걸려서`,
+    tot:`총 <b>${b+n}분</b>`}));
+}
+
+/* ---------- 화면 그리기 --------------------------------------------------- */
+const $screen = document.getElementById('screen');
+const $nav = document.getElementById('nav');
+const $top = document.getElementById('top');
+
+/* 안전망: 어디서든 오류가 나면 빈 화면 대신 원인을 표시한다 */
+window.addEventListener('error', function(ev){
+  $screen.innerHTML = '<div class="hint" style="border-left-color:#D08A78;color:#8A3A24">'
+    + '화면을 그리는 중 문제가 생겼습니다.<br><b>' + (ev.message || '') + '</b><br>'
+    + (ev.lineno || '') + '행</div>';
+});
+
+function render(){
+  $screen.scrollTop = 0;
+  if(idx < 0) return cover();
+  const list = active();
+  if(idx >= list.length) return done();
+
+  $top.hidden = false; $nav.hidden = false;
+  const q = list[idx];
+  document.getElementById('count').innerHTML = `<b>${idx+1}</b> / ${list.length}`;
+  document.getElementById('fill').style.width = ((idx)/list.length*100)+'%';
+
+  let h = `<div class="eyebrow">${q.sec}</div>`;
+  if(q.scene) h += `<div class="scene ${q.scene.tone}">`
+                 + `<span class="badge">${q.scene.badge}</span>`
+                 + `<p>${q.scene.text}</p></div>`;
+  if(q.intro) h += `<p class="note">${q.intro}</p>`;
+  h += `<h1 class="q${q.scene ? ' small' : ''}">${q.t}</h1>`;
+  if(q.hint) h += `<p class="hint">${q.hint}</p>`;
+  $screen.innerHTML = h;
+
+  ({one:one, many:many, num:num, od:od, split:split, scale:scale, bat:bat,
+    ladder:ladder, text:freetext, consent:consent, prize:prize})[q.type](q);
+
+  document.getElementById('prev').textContent = idx===0 ? '처음으로' : '이전';
+  document.getElementById('next').textContent = idx===list.length-1 ? '다 했어요' : '다음';
+  check();
+}
+
+/* --- 단일선택 --- */
+function one(q){
+  const box = el('<div class="opts"></div>');
+  q.o.forEach((t,i)=>{
+    const b = el(`<button type="button" class="opt"><span class="mark">✓</span><span class="t">${esc(t)}</span></button>`);
+    if(A[q.id]===i) b.classList.add('on');
+    b.onclick = ()=>{
+      A[q.id]=i;
+      if(q.map) A.spver = q.map[i];
+      if(q.etc!==i) delete A[q.id+'_etc'];
+      render();
+    };
+    box.appendChild(b);
+  });
+  $screen.appendChild(box);
+  if(q.etc!==undefined && A[q.id]===q.etc) etcField(q);
+}
+
+/* --- 다중선택 --- */
+function many(q){
+  A[q.id] = A[q.id] || [];
+  const cur = A[q.id];
+  const box = el('<div class="opts"></div>');
+  q.o.forEach((t,i)=>{
+    const b = el(`<button type="button" class="opt multi"><span class="mark">✓</span><span class="t">${esc(t)}</span></button>`);
+    if(cur.includes(i)) b.classList.add('on');
+    b.onclick = ()=>{
+      let s = A[q.id];
+      if(s.includes(i)) s = s.filter(x=>x!==i);
+      else {
+        if(q.excl===i) s = [i];
+        else { s = s.filter(x=>x!==q.excl); 
+               if(q.max && s.length>=q.max) s.shift();
+               s.push(i); }
+      }
+      A[q.id]=s;
+      if(q.etc!==undefined && !s.includes(q.etc)) delete A[q.id+'_etc'];
+      render();
+    };
+    box.appendChild(b);
+  });
+  $screen.appendChild(box);
+  if(q.etc!==undefined && cur.includes(q.etc)) etcField(q);
+}
+
+function etcField(q){
+  const i = el(`<input class="etc" placeholder="어떤 것인지 적어 주세요" value="${esc(A[q.id+'_etc']||'')}">`);
+  i.oninput = e => { A[q.id+'_etc'] = e.target.value; check(); };
+  $screen.appendChild(i);
+}
+
+/* --- 숫자 --- */
+function num(q){
+  const v = A[q.id];
+  const w = el(`<div class="withunit"><input class="inp" inputmode="numeric" pattern="[0-9]*"
+    placeholder="0" value="${typeof v==='number'?v:''}"><span class="unit">${q.unit}</span></div>`);
+  w.querySelector('input').oninput = e => {
+    const n = e.target.value.replace(/[^0-9]/g,'');
+    e.target.value = n;
+    A[q.id] = n===''? undefined : Number(n);
+    if(n!=='') delete A[q.id+'_skip'];
+    check();
+  };
+  $screen.appendChild(w);
+  if(q.skips){
+    const box = el('<div class="opts" style="margin-top:.9rem"></div>');
+    q.skips.forEach((t,i)=>{
+      const b = el(`<button type="button" class="opt multi"><span class="mark">✓</span><span class="t">${esc(t)}</span></button>`);
+      if(A[q.id+'_skip']===i) b.classList.add('on');
+      b.onclick = ()=>{
+        A[q.id+'_skip'] = A[q.id+'_skip']===i ? undefined : i;
+        if(A[q.id+'_skip']!==undefined) A[q.id]=undefined;
+        render();
+      };
+      box.appendChild(b);
+    });
+    $screen.appendChild(box);
+  }
+}
+
+/* --- 출발지/도착지 --- */
+function od(q){
+  A.q9 = A.q9 || {};
+  const mk = (key,label)=>{
+    const f = el(`<div class="field"><label>${label}</label>
+      <div class="row3" style="margin-bottom:.5rem">
+        <select class="inp" data-k="${key}gu">
+          <option value="">구·군 선택</option>
+          ${GU.map(g=>`<option ${A.q9[key+'gu']===g?'selected':''}>${g}</option>`).join('')}
+        </select>
+        <input class="inp" data-k="${key}dong" placeholder="○○동" value="${esc(A.q9[key+'dong']||'')}">
+      </div>
+      <input class="inp" data-k="${key}spot" placeholder="아파트·학교·마트·병원 이름 (선택)" value="${esc(A.q9[key+'spot']||'')}">
+    </div>`);
+    f.querySelectorAll('[data-k]').forEach(i=>{
+      const ev = i.tagName==='SELECT' ? 'change' : 'input';
+      i.addEventListener(ev, e => { A.q9[e.target.dataset.k] = e.target.value; check(); });
+    });
+    return f;
+  };
+  $screen.appendChild(mk('o','어디서 출발하세요?'));
+  $screen.appendChild(mk('d','어디로 가세요?'));
+}
+
+/* --- 시간 4분할 --- */
+function split(q){
+  A.q11 = A.q11 || {};
+  const rows = [
+    ['walk','걸어서 타는 곳까지','집에서 차 타는 곳까지 걸어가는 시간'],
+    ['wait','차를 기다리는 시간','부르고 나서 차가 올 때까지'],
+    ['ride','차를 타고 가는 시간','차 안에 앉아 있는 시간'],
+    ['out','내려서 목적지까지','내린 곳에서 걸어가는 시간']
+  ];
+  const box = el('<div class="split"></div>');
+  rows.forEach(([k,l,s])=>{
+    const r = el(`<div class="r"><div class="lab">${l}<i>${s}</i></div>
+      <input class="inp" inputmode="numeric" placeholder="0" value="${A.q11[k]??''}"><span class="unit">분</span></div>`);
+    r.querySelector('input').oninput = e => {
+      const n = e.target.value.replace(/[^0-9]/g,''); e.target.value = n;
+      A.q11[k] = n===''? undefined : Number(n);
+      delete A.q11.unknown; sum(); check();
+    };
+    box.appendChild(r);
+  });
+  box.appendChild(el('<div class="r sum"><div class="lab">모두 합해서</div><span id="q11sum" class="unit">– 분</span></div>'));
+  $screen.appendChild(box);
+
+  const sk = el(`<button type="button" class="opt multi" style="margin-top:.9rem"><span class="mark">✓</span><span class="t">잘 모르겠어요</span></button>`);
+  if(A.q11.unknown) sk.classList.add('on');
+  sk.onclick = ()=>{ A.q11 = A.q11.unknown ? {} : {unknown:true}; render(); };
+  $screen.appendChild(sk);
+
+  function sum(){
+    const t = ['walk','wait','ride','out'].reduce((a,k)=>a+(Number(A.q11[k])||0),0);
+    const n = document.getElementById('q11sum');
+    if(n) n.textContent = t ? t+' 분' : '– 분';
+  }
+  sum();
+}
+
+/* --- 0~10 --- */
+function scale(q){
+  const g = el('<div class="scale"></div>');
+  for(let i=0;i<=10;i++){
+    const b = el(`<button type="button" class="sbtn">${i}</button>`);
+    if(A[q.id]===i) b.classList.add('on');
+    b.onclick = ()=>{ A[q.id]=i; render(); };
+    g.appendChild(b);
+  }
+  $screen.appendChild(g);
+  $screen.appendChild(el('<div class="ends"><span>0 · 전혀 만족 안 함</span><span>10 · 아주 만족</span></div>'));
+}
+
+/* --- 5점 배터리 --- */
+const PIP = ['아주\n불만','불만','보통','만족','아주\n만족'];
+function bat(q){
+  A[q.id] = A[q.id] || {};
+  q.items.forEach((label,n)=>{
+    const c = el(`<div class="bat"><h3>${esc(label)}</h3><div class="pips"></div></div>`);
+    const row = c.querySelector('.pips');
+    PIP.forEach((t,i)=>{
+      const b = el(`<button type="button" class="pip"><b>${i+1}</b>${t.split('\n').map(esc).join('<br>')}</button>`);
+      if(A[q.id][n]===i) b.classList.add('on');
+      b.onclick = ()=>{ A[q.id][n]=i; render(); };
+      row.appendChild(b);
+    });
+    $screen.appendChild(c);
+  });
+}
+
+/* --- SIGNATURE: 시간 사다리 --- */
+function ladder(q){
+  A[q.id] = A[q.id] || {};
+  const kind = q.kind;
+  const rows = ladderRows(kind);
+
+  if(kind!=='ud'){
+    const b = ver().base;
+    const chip = kind==='wait'
+      ? (A.q11 && A.q11.wait ? `지금 기다리는 시간 <b>${A.q11.wait}분</b>` : `지금 기다리는 시간`)
+      : `지금 차 타고 가는 시간 <b>${b}분</b>`;
+    $screen.appendChild(el(`<div class="mychip">${chip}</div>`));
+  }
+
+  const yes = kind==='ud' ? '찬성한다' : '그래도 탄다';
+  const no  = kind==='ud' ? '반대한다' : '안 탄다';
+  const maxT = (rows[rows.length-1].base||0) + rows[rows.length-1].add || 1;
+
+  rows.forEach((r,i)=>{
+    const card = el('<div class="rung"></div>');
+    if(r.base){
+      const bp = r.base/maxT*100, ap = r.add/maxT*100;
+      card.appendChild(el(`<div class="bar"><span class="base" style="width:${bp}%"></span><span class="add" style="width:${ap}%"></span></div>`));
+    }
+    card.appendChild(el(`<div class="rlab"><span class="plus">${r.add===0?'그대로':'+'+r.add+'분'}</span>
+      ${r.tot?`<span class="arrow">→</span><span class="tot">${r.tot}</span>`:`<span class="tot"><em>${r.txt}</em></span>`}</div>`));
+
+    const pair = el('<div class="pair"></div>');
+    [[1,yes,'yes'],[0,no,'no']].forEach(([v,label,cls])=>{
+      const b = el(`<button type="button" class="rbtn ${cls}">${label}</button>`);
+      if(A[q.id][i]===v) b.classList.add('on');
+      b.onclick = ()=>{ A[q.id][i]=v; render(); };
+      pair.appendChild(b);
+    });
+    card.appendChild(pair);
+    if(A[q.id][i]!==undefined) card.classList.add('done');
+    $screen.appendChild(card);
+  });
+}
+
+/* --- 자유응답 --- */
+function freetext(q){
+  const t = el(`<textarea class="inp" placeholder="여기에 적어 주세요">${esc(A[q.id]||'')}</textarea>`);
+  t.oninput = e => { A[q.id]=e.target.value; };
+  $screen.appendChild(t);
+}
+
+/* ---------- 경품 받기: 개인정보 수집·이용 동의 ---------------------------- */
+/* ★ 아래 문의처는 실제 담당 부서로 반드시 바꾸세요 ★ */
+const PRIVACY = {
+  항목: '이름, 휴대전화번호',
+  목적: '설문 사례품(모바일 상품권) 발송 및 중복 수령 확인',
+  기간: '상품권 발송 완료 후 즉시 파기 (늦어도 조사 종료일부터 3개월 이내)',
+  문의: '(주)스페이스인사이트 송재인 010-6605-6251'
+};
+
+function consent(q){
+  $screen.appendChild(el(`<div class="legal">
+    <div><dt>수집 항목</dt><dd>${PRIVACY.항목}</dd></div>
+    <div><dt>이용 목적</dt><dd>${PRIVACY.목적}</dd></div>
+    <div><dt>보관 기간</dt><dd>${PRIVACY.기간}</dd></div>
+    <div><dt>문의처</dt><dd>${PRIVACY.문의}</dd></div>
+  </div>`));
+
+  $screen.appendChild(el(`<div class="refuse">받지 않으셔도 됩니다.
+    상품권을 받지 않으셔도 <b>설문 응답은 그대로 제출</b>됩니다.</div>`));
+
+  /* 만 14세 미만은 법정대리인 동의가 필요 — '19세 이하' 응답자에게만 확인 */
+  const minorRisk = (A.q2 === 0);
+  if(minorRisk){
+    $screen.appendChild(el('<p class="note" style="font-weight:700;margin-bottom:.5rem">만 14세 이상이신가요?</p>'));
+    const g = el('<div class="pair" style="margin-bottom:1rem"></div>');
+    [[1,'만 14세 이상입니다'],[0,'만 14세 미만입니다']].forEach(([v,label])=>{
+      const b = el(`<button type="button" class="rbtn ${v?'yes':'no'}">${label}</button>`);
+      if(A.age14===v) b.classList.add('on');
+      b.onclick = ()=>{ A.age14=v; if(v===0) A.consent=0; render(); };
+      g.appendChild(b);
+    });
+    $screen.appendChild(g);
+  }
+
+  if(minorRisk && A.age14===0){
+    $screen.appendChild(el(`<div class="blocked">만 14세 미만은 보호자(법정대리인)의 동의가 있어야
+      개인정보를 받을 수 있어서, 온라인으로는 상품권을 보내드리기 어렵습니다.<br>
+      설문 응답은 그대로 제출되니 <b>다음</b>을 눌러 주세요.</div>`));
+    return;
+  }
+  if(minorRisk && A.age14===undefined) return;
+
+  const box = el('<div class="opts"></div>');
+  [[1,'상품권을 받겠습니다 (개인정보 수집·이용에 동의)'],
+   [0,'상품권을 받지 않겠습니다']].forEach(([v,label])=>{
+    const b = el(`<button type="button" class="opt"><span class="mark">✓</span><span class="t">${label}</span></button>`);
+    if(A.consent===v) b.classList.add('on');
+    b.onclick = ()=>{
+      A.consent=v;
+      if(v===1) A.consentAt = new Date().toLocaleString('sv-SE');
+      else { delete A.name; delete A.phone; delete A.consentAt; }
+      render();
+    };
+    box.appendChild(b);
+  });
+  $screen.appendChild(box);
+}
+
+function prize(q){
+  const f = el(`<div>
+    <div class="field"><label>이름</label>
+      <input class="inp" id="pname" placeholder="홍길동" value="${esc(A.name||'')}"></div>
+    <div class="field"><label>휴대전화번호 <span class="sub">'-' 없이 숫자만</span></label>
+      <input class="inp" id="pphone" inputmode="numeric" placeholder="01012345678" value="${esc(A.phone||'')}"></div>
+  </div>`);
+  f.querySelector('#pname').oninput = e => { A.name = e.target.value; check(); };
+  f.querySelector('#pphone').oninput = e => {
+    e.target.value = e.target.value.replace(/[^0-9]/g,'').slice(0,11);
+    A.phone = e.target.value; check();
+  };
+  $screen.appendChild(f);
+  $screen.appendChild(el(`<div class="refuse">적어주신 번호로 상품권을 문자로 보내드립니다.
+    번호가 틀리면 보내드릴 수 없으니 한 번 더 확인해 주세요.</div>`));
+}
+
+/* ---------- 다음 버튼 활성 조건 -------------------------------------------- */
+function answered(q){
+  if(q.optional) return true;
+  const v = A[q.id];
+  switch(q.type){
+    case 'one':
+      if(v===undefined) return false;
+      if(q.etc===v && !(A[q.id+'_etc']||'').trim()) return false;
+      return true;
+    case 'many':
+      if(!v || !v.length) return false;
+      if(q.etc!==undefined && v.includes(q.etc) && !(A[q.id+'_etc']||'').trim()) return false;
+      return true;
+    case 'num':   return typeof v==='number' || A[q.id+'_skip']!==undefined;
+    case 'scale': return typeof v==='number';
+    case 'od':    return !!(A.q9 && A.q9.ogu && A.q9.dgu);
+    case 'split': return !!(A.q11 && (A.q11.unknown || A.q11.ride!==undefined));
+    case 'bat':   return q.items.every((_,i)=> v && v[i]!==undefined);
+    case 'ladder':return ladderRows(q.kind).every((_,i)=> v && v[i]!==undefined);
+    case 'text':  return true;
+    case 'consent':
+      if(A.q2===0 && A.age14===undefined) return false;
+      if(A.q2===0 && A.age14===0) return true;
+      return A.consent!==undefined;
+    case 'prize':
+      return !!(A.name||'').trim() && /^01[0-9]{8,9}$/.test(A.phone||'');
+  }
+  return true;
+}
+function check(){
+  const list = active();
+  const q = list[idx];
+  if(!q) return;
+  document.getElementById('next').disabled = !answered(q);
+}
+
+/* ---------- 표지 / 완료 ---------------------------------------------------- */
+function cover(){
+  $top.hidden = true; $nav.hidden = true;
+  $screen.innerHTML = `
+    <div class="cover">
+      <div class="whale">울산광역시 거점형 스마트시티 조성사업</div>
+      <h1>울산마실고래를<br>더 편하게 만들고 싶습니다.</h1>
+      <p>타시면서 불편하셨던 점, 얼마나 기다릴 수 있으신지를 여쭤보려 합니다.
+         정답은 없으니 편하게 답해 주세요. 끝까지 답해 주신 분께는 3,000원 상당의 모바일 상품권을 드립니다.</p>
+      <div class="facts">
+        <div><dt>걸리는 시간</dt><dd>약 8분</dd></div>
+        <div><dt>문항</dt><dd>${active().length}개</dd></div>
+        <div><dt>개인정보</dt><dd>경품을 드리기 위한 이름과 연락처만 받습니다.<br>
+          그 외에는 아무것도 묻지 않습니다.</dd></div>
+        <div><dt>활용</dt><dd>서비스 개선 자료로만 씁니다</dd></div>
+      </div>
+      <button type="button" class="ghost" id="big" style="background:var(--sea);color:#fff;border-color:var(--sea);min-height:3.7rem;font-size:1.1rem">설문 시작하기</button>
+      <button type="button" class="ghost" id="tog">글자 크게 보기</button>
+    </div>`;
+  document.getElementById('big').onclick = ()=>{ idx=0; render(); };
+  document.getElementById('tog').onclick = cycleSize;
+}
+
+let SENT = false;      // 중복 저장 방지
+let PAYLOAD = null;
+
+function done(){
+  $top.hidden = true; $nav.hidden = true;
+  if(!PAYLOAD) PAYLOAD = collect();
+  if(!SENT){ SENT = true; screenSaving(); send(PAYLOAD); }
+}
+
+/* 1단계 — 저장 중 */
+function screenSaving(){
+  $screen.innerHTML = `
+    <span class="spin"></span>
+    <h1 class="endtitle">답변을 저장하고 있습니다</h1>
+    <p class="endsub">잠시만 기다려 주세요.<br>이 화면을 닫지 마시고 그대로 두시면 됩니다.</p>`;
+}
+
+/* 2단계 — 완료 */
+function screenDone(){
+  $screen.innerHTML = `
+    <div class="bigmark ok">✓</div>
+    <h1 class="endtitle">답변 감사합니다</h1>
+    <p class="endsub">보내주신 의견은 마실고래를 고치는 데 쓰입니다.</p>
+    ${A.consent===1
+      ? '<div class="refuse" style="text-align:center;font-size:1rem">적어주신 번호로 <b>모바일 상품권</b>을 보내드립니다.</div>'
+      : ''}
+    <div class="closebox">저장이 끝났습니다.<br>이제 화면을 닫으셔도 됩니다.</div>`;
+}
+
+/* 3단계 — 실패 */
+function screenFail(msg){
+  $screen.innerHTML = `
+    <div class="bigmark bad">!</div>
+    <h1 class="endtitle">저장하지 못했습니다</h1>
+    <p class="endsub">${msg}</p>
+    <button type="button" class="ghost" id="retry"
+      style="background:var(--sea);color:#fff;border-color:var(--sea);min-height:3.6rem;font-size:1.05rem">
+      다시 시도하기</button>`;
+  document.getElementById('retry').onclick = ()=>{
+    screenSaving();
+    send(PAYLOAD);
+  };
+}
+
+/* ---------- 응답 정리: 스프레드시트 한 줄로 평탄화 -------------------------- */
+function collect(){
+  const o = {};
+  const put = (k,v)=>{ o[k] = (v===undefined||v===null) ? '' : v; };
+
+  put('응답ID', A.rid);
+  put('제출시각', new Date().toLocaleString('sv-SE'));   // 2026-07-27 14:03:22
+  put('SP버전', A.spver||'');
+  put('SP기준시간', ver().base);
+
+  /* 단일선택 — 보기번호(1부터) */
+  ['q1','q2','q3','q4','q6','q7','q8','q10','q12','q13','q13b','q14',
+   'q20','q22','q26','q27','q29','q30'].forEach(id=>{
+    put(id, A[id]===undefined ? '' : A[id]+1);
+  });
+  ['q3','q8','q14'].forEach(id=>{ if(A[id+'_etc']) put(id+'_기타', A[id+'_etc']); });
+
+  /* 다중선택 — 보기별 0/1 더미 */
+  const dummy = (id, n)=>{
+    const s = A[id]||[];
+    for(let i=0;i<n;i++) put(id+'_'+(i+1), s.includes(i)?1:0);
+    if(A[id+'_etc']) put(id+'_기타', A[id+'_etc']);
+  };
+  dummy('q5',7); dummy('q31',8); dummy('q32',13);
+
+  /* 출발지·도착지 */
+  const g = A.q9||{};
+  put('q9_출발구', g.ogu); put('q9_출발동', g.odong); put('q9_출발장소', g.ospot);
+  put('q9_도착구', g.dgu); put('q9_도착동', g.ddong); put('q9_도착장소', g.dspot);
+
+  /* 통행시간 4분할 */
+  const t = A.q11||{};
+  put('q11_걷기', t.walk); put('q11_대기', t.wait);
+  put('q11_차내', t.ride); put('q11_하차후', t.out);
+  put('q11_합계', t.unknown ? '' : ['walk','wait','ride','out'].reduce((a,k)=>a+(Number(t[k])||0),0));
+  put('q11_모름', t.unknown?1:0);
+
+  /* 숫자 + 보기 */
+  [['q15',['기억안남','과거미통행']],['q21',[]]].forEach(([id,labels])=>{
+    put(id, A[id]);
+    if(labels.length) put(id+'_보기', A[id+'_skip']!==undefined ? labels[A[id+'_skip']] : '');
+  });
+
+  /* 만족도 */
+  put('q18', A.q18);
+  const bats = {q19a:[1,2,3,4,5], q19b:[6,7,8,9]};
+  Object.keys(bats).forEach(id=>{
+    const v = A[id]||{};
+    bats[id].forEach((col,i)=> put('q19_'+col, v[i]===undefined ? '' : v[i]+1));
+  });
+
+  /* SP 사다리 — 단계별 1(수락)/0(거절) + 파생지표 */
+  [['q23','ride'],['q24','wait'],['q25','wheel'],['q28','ud']].forEach(([id,kind])=>{  // q28은 UD차량
+    const rows = ladderRows(kind);
+    const v = A[id]||{};
+    rows.forEach((r,i)=> put(id+'_+'+r.add+'분', v[i]===undefined ? '' : v[i]));
+
+    /* 수용한계: 거절이 처음 나오기 직전까지 수락한 최대 추가분 */
+    let limit = 0, broken = 0, seenNo = false;
+    rows.forEach((r,i)=>{
+      if(v[i]===1){ if(seenNo) broken = 1; else limit = r.add; }
+      if(v[i]===0) seenNo = true;
+    });
+    let maxYes = 0;
+    rows.forEach((r,i)=>{ if(v[i]===1 && r.add>maxYes) maxYes = r.add; });
+    put(id+'_수용한계', limit);      // 첫 거절 직전까지 (보수적)
+    put(id+'_최대수락', maxYes);     // 수락한 것 중 가장 큰 값
+    put(id+'_역전응답', broken);   // 1이면 논리 역전(예: 5분 수락, 3분 거절)
+  });
+
+  put('q33', A.q33||'');
+
+  /* 경품 받기 — 동의 여부만 응답 시트에 남긴다 */
+  put('경품동의', A.consent===1 ? 1 : 0);
+  if(A.q2===0) put('만14세이상', A.age14===undefined ? '' : A.age14);
+
+  /* 개인정보는 '_개인정보'로 분리해서 보낸다.
+     수신 스크립트가 이 묶음만 별도 시트에 적고 응답 시트에는 남기지 않는다. */
+  if(A.consent===1 && A.name && A.phone){
+    o._개인정보 = {
+      응답ID: A.rid,
+      이름: A.name,
+      연락처: A.phone,
+      동의시각: A.consentAt || '',
+      수집항목: PRIVACY.항목,
+      보관기간: PRIVACY.기간
+    };
+  }
+  return o;
+}
+
+/* =====================================================================
+   ★ 여기만 바꾸면 됩니다 ★
+   구글 앱스 스크립트를 '웹 앱'으로 배포하고 받은 주소(.../exec)를 넣으세요.
+   비워두면 전송하지 않고 기기에만 남습니다.
+   ===================================================================== */
+const SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbwvnaY-oc1cT_-xYqp8cVzt79kiU8RtZwFDy_kAvGQEUmzF3ONAewCW1ytMm1VvelqD/exec';
+
+async function send(data){
+  if(!SUBMIT_URL){
+    screenFail('보낼 주소가 설정되지 않았습니다. 조사 담당자에게 알려 주세요.');
+    return;
+  }
+  const body = JSON.stringify(data);
+
+  /* 1차: 정상 요청 — 저장 성공까지 확인할 수 있다 */
+  try{
+    const res = await fetch(SUBMIT_URL, {
+      method:'POST', redirect:'follow',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},   // 프리플라이트 회피
+      body
+    });
+    const out = await res.json();
+    if(out && out.ok){ screenDone(); return; }
+    screenFail('서버가 저장하지 못했습니다.<br>다시 시도해 주세요.');
+    return;
+  }catch(e){ /* 응답을 읽지 못한 것뿐일 수 있으므로 아래로 진행 */ }
+
+  /* 2차: no-cors — 응답은 못 읽지만 전달은 된다.
+     같은 응답ID는 서버가 중복 저장하지 않으므로 재시도해도 안전하다. */
+  try{
+    await fetch(SUBMIT_URL, {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body
+    });
+    screenDone(); return;
+  }catch(e){}
+
+  /* 3차: 마지막 수단 */
+  try{
+    if(navigator.sendBeacon(SUBMIT_URL, new Blob([body],{type:'text/plain;charset=utf-8'}))){
+      screenDone(); return;
+    }
+  }catch(e){}
+
+  screenFail('인터넷 연결이 불안정합니다.<br>연결을 확인하고 다시 시도해 주세요.');
+}
+
+/* ---------- 글자 크기 ------------------------------------------------------ */
+const SIZES = ['m','l','xl'], SIZE_LABEL = {m:'글자 크게', l:'더 크게', xl:'보통 크기'};
+function cycleSize(){
+  const cur = document.documentElement.dataset.size || 'm';
+  const nx = SIZES[(SIZES.indexOf(cur)+1) % SIZES.length];
+  document.documentElement.dataset.size = nx;
+  document.getElementById('sizebtn').textContent = SIZE_LABEL[nx];
+  const t = document.getElementById('tog'); if(t) t.textContent = SIZE_LABEL[nx] + ' 보기';
+}
+document.getElementById('sizebtn').onclick = cycleSize;
+
+/* ---------- 이동 ----------------------------------------------------------- */
+document.getElementById('next').onclick = ()=>{
+  const btn = document.getElementById('next');
+  if(btn.disabled) return;
+  btn.disabled = true;          // 연타로 두 번 저장되는 것을 막는다
+  idx++; render();
+};
+document.getElementById('prev').onclick = ()=>{ idx--; render(); };
+
+render();
+</script>

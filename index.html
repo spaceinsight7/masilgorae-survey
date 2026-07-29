@@ -352,7 +352,7 @@ const Q = [
  o:['해당 없음','만 65세 이상','휠체어를 이용함','지팡이·보행기 등을 이용함','눈이나 귀가 불편함','임신 중이거나 유모차를 이용함','기타'], etc:6, excl:0},
 
 {id:'q6', sec:'응답자 정보', t:'마실고래를 타실 때 주로 내는 요금은 얼마인가요?', type:'one',
- o:['성인 요금 1,500원','청소년 요금 950원','어린이 요금 500원','환승이라 더 안 냄','탈 때마다 다름','잘 모르겠음']},
+ o:['성인 요금 1,500원','청소년 요금 950원','어린이 요금 500원','어르신 교통카드 (만 70세 이상)','환승이라 더 안 냄','탈 때마다 다름','잘 모르겠음']},
 
 /* Ⅱ. 이용행태 */
 {id:'q7', sec:'이용 습관', t:'마실고래를 얼마나 자주 타세요?', type:'one',
@@ -363,10 +363,11 @@ const Q = [
  o:['출퇴근','등하교','업무','친구 만남·운동·취미','학원','장보기·쇼핑','병원','복지관·경로당','기타'], etc:8},
 
 {id:'q9', sec:'이용 습관', t:'그때 어디서 어디로 가세요?',
- hint:'자세한 주소 대신 아파트·학교·마트·병원·정류장 이름이나 동 이름을 적어 주세요.', type:'od'},
+ hint:'아는 만큼만 적어 주시면 됩니다. 한쪽만 적으셔도 되고, 적기 어려우시면 맨 아래를 눌러 그냥 넘어가셔도 됩니다.', type:'od'},
 
-{id:'q10', sec:'이용 습관', t:'그 길은 주로 언제 다니세요?', type:'one',
- o:['평일 아침 (7~9시)','평일 오전 (9~12시)','평일 낮 (12~17시)','평일 저녁 (17~19시)','평일 밤 (19시 이후)','주말·공휴일']},
+{id:'q10', sec:'이용 습관', t:'그 길은 주로 언제 다니세요?',
+ hint:'마실고래는 평일에만 다닙니다.', type:'one',
+ o:['아침 (7~9시)','오전 (9~12시)','낮 (12~17시)','저녁 (17~19시)','밤 (19시 이후)']},
 
 /* Ⅲ. 통행시간 */
 {id:'q11', sec:'걸리는 시간', t:'그 길을 마실고래로 갈 때, 시간이 얼마나 걸리나요?',
@@ -375,10 +376,11 @@ const Q = [
 {id:'q12', sec:'걸리는 시간', t:'차를 호출하고부터 도착하기까지의 시간은 어떠셨나요?', type:'one',
  o:['생각보다 짧았다','생각한 만큼이었다','생각보다 길었다','탈 때마다 많이 달랐다']},
 
-{id:'q13', sec:'걸리는 시간', t:'앱에서 알려주는 도착 시간보다 늦게 온 적이 있나요?', type:'one',
+{id:'q13', sec:'걸리는 시간', t:'앱에서 알려준 시간보다 <b>목적지에 늦게 도착</b>한 적이 있나요?',
+ hint:'차가 오는 시간이 아니라, 가려는 곳에 다다르는 시간을 말합니다.', type:'one',
  o:['거의 없었다','가끔 있었다','자주 있었다','거의 매번 그랬다','도착 시간을 안 봐서 모르겠다']},
 
-{id:'q13b', sec:'걸리는 시간', t:'앱에서 알려주는 시간보다 몇 분까지 늦어도 괜찮으세요?', type:'one',
+{id:'q13b', sec:'걸리는 시간', t:'앱에서 알려준 <b>목적지 도착 시간</b>보다 몇 분까지 늦어도 괜찮으세요?', type:'one',
  o:['1분','3분','5분','10분','15분 이상도 괜찮다','조금도 늦으면 안 된다']},
 
 {id:'q14', sec:'걸리는 시간', t:'마실고래가 생기기 전에는 그 길을 무엇으로 다니셨나요?', type:'one',
@@ -391,13 +393,6 @@ const Q = [
 /* Ⅳ. 만족도 */
 {id:'q18', sec:'만족도', t:'마실고래 서비스에 전체적으로 얼마나 만족하세요?',
  hint:'0점은 전혀 만족하지 않음, 10점은 아주 만족함입니다.', type:'scale'},
-
-{id:'q19a', sec:'만족도', t:'다음 각각에 얼마나 만족하세요?', type:'bat',
- items:['차를 부르고 정류장에서 기다리는 시간',
-        '차를 호출한 시간 기준으로 차가 오기까지의 시간',
-        '목적지까지 가는 시간',
-        '도착 시간 안내가 정확한지',
-        '타는 곳까지 가기 편한지']},
 
 {id:'q19b', sec:'만족도', t:'다음 각각에 얼마나 만족하세요?', type:'bat',
  items:['앱으로 부르고 예약하기','요금','차 안이 깨끗하고 편한지','기사님 응대']},
@@ -435,14 +430,6 @@ const Q = [
 {id:'q26', sec:'시간에 대한 생각', t:'이런저런 이유로 늦어질 때, 최대 몇 분까지 참고 타실 수 있으세요?', type:'one',
  o:['1분까지','3분까지','5분까지','10분까지','15분 이상도 괜찮다','조금도 늦으면 안 된다']},
 
-{id:'q27', sec:'시간에 대한 생각',
- t:'돈을 조금 더 내면 다른 손님을 안 태우고 바로 가는 방법이 생긴다면, 얼마까지 내시겠어요?',
- hint:'5분쯤 빨리 도착합니다. 지금 요금은 1,500원이에요. 실제로 요금을 올린다는 뜻은 아닙니다.',
- type:'one', o:['300원 더 (1,800원)','500원 더 (2,000원)','1,000원 더 (2,500원)','더 내고 싶지 않다 · 그냥 함께 타겠다']},
-
-{id:'q29', sec:'시간에 대한 생각', t:'여러 손님이 함께 타는 방식, 전체적으로 어떻게 생각하세요?', type:'one',
- o:['아주 싫다','싫은 편이다','그저 그렇다','괜찮은 편이다','아주 괜찮다']},
-
 {id:'q30', sec:'유니버설 디자인 차량', type:'one',
  scene:{tone:'amber', badge:'유니버설 디자인 차량이란',
    text:'<b>휠체어를 타신 채로 탈 수 있는 차량</b>을 말합니다.<br>바닥이 낮고, 경사로가 있고, 휠체어를 안전하게 고정하는 장치를 갖춘<br><b>누구나 타기 쉽게 만든 차</b>입니다.'},
@@ -451,21 +438,10 @@ const Q = [
 
 {id:'q28', sec:'유니버설 디자인 차량', type:'ladder', kind:'ud',
  scene:{tone:'amber', badge:'자리가 줄어드는 대신',
-   text:'유니버설 디자인 차량은 휠체어 공간이 필요해서<br><b>자리가 줄어듭니다 (12인 → 7인)</b>.<br>그만큼 배차할 수 있는 차가 적어져 <b>기다리는 시간이 길어질 수</b> 있습니다.'},
+   text:'유니버설 디자인 차량은 휠체어 공간이 필요해서<br><b>자리가 줄어듭니다 (12석 → 5석 + 휠체어 2석)</b>.<br>그만큼 배차할 수 있는 차가 적어져 <b>기다리는 시간이 길어질 수</b> 있습니다.'},
  t:'그래도 이런 차를 늘리는 데 찬성하세요?'},
 
 /* Ⅶ. 개선 */
-{id:'q31', sec:'바라는 점', t:'도착 시간이 바뀔 때, 무엇이 있으면 가장 덜 불편하실까요?',
- hint:'2개까지 고를 수 있어요.', type:'many', max:2,
- o:['처음부터 "15~22분 후"처럼 범위로 알려주기','함께 타면 최대 몇 분 더 걸리는지 미리 알려주기','휠체어 손님이 타서 멈출 때 바로 알려주기','가는 동안 도착 시간을 계속 새로 알려주기','왜 늦어지는지 앱에서 알려주기','많이 늦어지면 보상해 주기','따로 알려주지 않아도 괜찮다','기타'], etc:7},
-
-{id:'q32', sec:'바라는 점', t:'마실고래에서 가장 먼저 좋아졌으면 하는 것은 무엇인가요?',
- hint:'2개까지 고를 수 있어요.', type:'many', max:2,
- o:['부르고 기다리는 시간 줄이기','도착 시간 안내 정확하게','목적지까지 빨리 가기','함께 타고 돌아가는 방식 개선','앱으로 부르기 쉽게','차가 어디쯤 오는지 알려주기','타는 곳까지 가기 편하게','요금','차 안 깨끗하고 편하게','기사님 응대','몸이 불편한 분을 위한 시설','다니는 지역·시간 늘리기','기타'], etc:12},
-
-{id:'q33', sec:'바라는 점', t:'더 하고 싶은 말씀이 있으면 자유롭게 적어 주세요.',
- hint:'안 쓰셔도 괜찮습니다.', type:'text', optional:true},
-
 /* Ⅷ. 경품 받기 — 개인정보 수집·이용 동의 */
 {id:'consent', sec:'경품 받기', type:'consent',
  t:'끝까지 답해 주신 모든 분께 모바일 상품권을 드립니다.'},
@@ -634,12 +610,22 @@ function od(q){
     </div>`);
     f.querySelectorAll('[data-k]').forEach(i=>{
       const ev = i.tagName==='SELECT' ? 'change' : 'input';
-      i.addEventListener(ev, e => { A.q9[e.target.dataset.k] = e.target.value; check(); });
+      i.addEventListener(ev, e => {
+        A.q9[e.target.dataset.k] = e.target.value;
+        if(e.target.value) delete A.q9.unknown;
+        check();
+      });
     });
     return f;
   };
   $screen.appendChild(mk('o','어디서 출발하세요?'));
   $screen.appendChild(mk('d','어디로 가세요?'));
+
+  const sk = el(`<button type="button" class="opt multi" style="margin-top:.3rem">
+    <span class="mark">✓</span><span class="t">잘 모르겠어요 · 적기 어려워요</span></button>`);
+  if(A.q9.unknown) sk.classList.add('on');
+  sk.onclick = ()=>{ A.q9 = A.q9.unknown ? {} : {unknown:true}; render(); };
+  $screen.appendChild(sk);
 }
 
 /* --- 시간 4분할 --- */
@@ -845,7 +831,7 @@ function answered(q){
       return true;
     case 'num':   return typeof v==='number' || A[q.id+'_skip']!==undefined;
     case 'scale': return typeof v==='number';
-    case 'od':    return !!(A.q9 && A.q9.ogu && A.q9.dgu);
+    case 'od':    return !!(A.q9 && (A.q9.unknown || A.q9.ogu || A.q9.dgu));
     case 'split': return !!(A.q11 && (A.q11.unknown || A.q11.ride!==undefined));
     case 'bat':   return q.items.every((_,i)=> v && v[i]!==undefined);
     case 'ladder':return ladderRows(q.kind).every((_,i)=> v && v[i]!==undefined);
@@ -911,7 +897,7 @@ function screenDone(){
   $screen.innerHTML = `
     <div class="bigmark ok">✓</div>
     <h1 class="endtitle">답변 감사합니다</h1>
-    <p class="endsub">보내주신 의견은 마실고래를 고치는 데 쓰입니다.</p>
+    <p class="endsub">보내주신 의견은 개선방향 설정에 쓰입니다.</p>
     ${A.consent===1
       ? '<div class="refuse" style="text-align:center;font-size:1rem">적어주신 번호로 <b>모바일 상품권</b>을 보내드립니다.</div>'
       : ''}
@@ -945,7 +931,7 @@ function collect(){
 
   /* 단일선택 — 보기번호(1부터) */
   ['q1','q2','q3','q4','q6','q7','q8','q10','q12','q13','q13b','q14',
-   'q20','q22','q26','q27','q29','q30'].forEach(id=>{
+   'q20','q22','q26','q30'].forEach(id=>{
     put(id, A[id]===undefined ? '' : A[id]+1);
   });
   ['q3','q8','q14'].forEach(id=>{ if(A[id+'_etc']) put(id+'_기타', A[id+'_etc']); });
@@ -956,12 +942,13 @@ function collect(){
     for(let i=0;i<n;i++) put(id+'_'+(i+1), s.includes(i)?1:0);
     if(A[id+'_etc']) put(id+'_기타', A[id+'_etc']);
   };
-  dummy('q5',7); dummy('q31',8); dummy('q32',13);
+  dummy('q5',7);
 
   /* 출발지·도착지 */
   const g = A.q9||{};
   put('q9_출발구', g.ogu); put('q9_출발동', g.odong); put('q9_출발장소', g.ospot);
   put('q9_도착구', g.dgu); put('q9_도착동', g.ddong); put('q9_도착장소', g.dspot);
+  put('q9_모름', g.unknown ? 1 : 0);
 
   /* 통행시간 4분할 */
   const t = A.q11||{};
@@ -978,7 +965,7 @@ function collect(){
 
   /* 만족도 */
   put('q18', A.q18);
-  const bats = {q19a:[1,2,3,4,5], q19b:[6,7,8,9]};
+  const bats = {q19b:[1,2,3,4]};
   Object.keys(bats).forEach(id=>{
     const v = A[id]||{};
     bats[id].forEach((col,i)=> put('q19_'+col, v[i]===undefined ? '' : v[i]+1));
@@ -1002,8 +989,6 @@ function collect(){
     put(id+'_최대수락', maxYes);     // 수락한 것 중 가장 큰 값
     put(id+'_역전응답', broken);   // 1이면 논리 역전(예: 5분 수락, 3분 거절)
   });
-
-  put('q33', A.q33||'');
 
   /* 경품 받기 — 동의 여부만 응답 시트에 남긴다 */
   put('경품동의', A.consent===1 ? 1 : 0);
@@ -1029,7 +1014,7 @@ function collect(){
    구글 앱스 스크립트를 '웹 앱'으로 배포하고 받은 주소(.../exec)를 넣으세요.
    비워두면 전송하지 않고 기기에만 남습니다.
    ===================================================================== */
-const SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbz9kaHXzpuf9lDgyNULDhH2lK41i8PAZ6wGwYUfSaU_w1eTdRwntIzfzWI1H-PlhRSs/exec';
+const SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbw2dpVwetMTmUTFfCKuMa9lf8F_Vh1a2n7yBCWa82cW_xsYebZbKr4Pu8v4D5gsdfGL/exec';
 
 async function send(data){
   if(!SUBMIT_URL){
